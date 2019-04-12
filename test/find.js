@@ -9,20 +9,6 @@ describe('`o find` CLI', function() {
 	beforeEach(setup.init);
 	afterEach(setup.teardown);
 
-	var validateUser = user => {
-		expect(user).to.have.property('_id');
-		expect(user).to.have.property('_collection');
-		expect(user).to.have.property('name');
-		expect(user).to.have.property('status');
-		expect(user).to.have.property('company');
-		expect(user).to.have.property('role');
-		expect(user).to.have.property('favourite');
-		expect(user.favourite).to.be.an('object');
-		expect(user).to.have.nested.property('favourite.color');
-		expect(user).to.have.nested.property('favourite.animal');
-		expect(user).to.have.property('_password');
-	};
-
 	it('should dry-run a query', ()=>
 		exec([`${__dirname}/../o.js`, 'find', 'users', '--dry-run'], {logStderr: mlog.log, bufferStdout: true, json: true})
 			.then(res => {
@@ -37,7 +23,7 @@ describe('`o find` CLI', function() {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length.above(1);
 
-				res.forEach(user => validateUser(user));
+				res.forEach(user => setup.validateUser(user));
 			})
 	)
 
@@ -47,7 +33,7 @@ describe('`o find` CLI', function() {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(2);
 
-				res.forEach(user => validateUser(user));
+				res.forEach(user => setup.validateUser(user));
 			})
 	)
 
@@ -67,6 +53,7 @@ describe('`o find` CLI', function() {
 				expect(res).to.have.length(1);
 				expect(res[0]).to.have.property('name', 'Jane Quark');
 				expect(res[0]).to.have.property('status', 'active');
+				res.forEach(user => setup.validateUser(user));
 			})
 	)
 
@@ -77,6 +64,7 @@ describe('`o find` CLI', function() {
 				expect(res).to.have.length(1);
 				expect(res[0]).to.have.property('name', 'Jane Quark');
 				expect(res[0]).to.have.property('status', 'active');
+				res.forEach(user => setup.validateUser(user));
 			})
 	)
 
@@ -86,6 +74,7 @@ describe('`o find` CLI', function() {
 				expect(res).to.be.an('object');
 				expect(res).to.have.property('name', 'Jane Quark');
 				expect(res).to.have.property('status', 'active');
+				setup.validateUser(res);
 			})
 	)
 
@@ -95,6 +84,7 @@ describe('`o find` CLI', function() {
 				expect(res).to.be.an('object');
 				expect(res).to.have.property('name', 'Jane Quark');
 				expect(res).to.have.property('status', 'active');
+				setup.validateUser(res);
 			})
 	)
 });

@@ -91,4 +91,20 @@ var setup = module.exports = {
 		.then(()=> monoxide.connection.db.dropDatabase())
 	},
 	// }}}
+
+	// validateUser {{{
+	validateUser: user => {
+		expect(user).to.have.property('_id');
+		expect(user).to.have.property('_collection');
+		expect(user).to.have.property('name');
+		expect(user).to.have.property('status');
+		expect(user).to.have.property('company');
+		expect(user).to.have.property('role');
+		expect(user).to.have.property('favourite');
+		expect(user.favourite).to.be.an('object');
+		expect(user).to.have.nested.property('favourite.color');
+		expect(user).to.have.nested.property('favourite.animal');
+		expect(user).to.have.property('_password');
+	},
+	// }}}
 };
