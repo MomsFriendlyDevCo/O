@@ -1,5 +1,6 @@
 var expect = require('chai').expect;
 var exec = require('@momsfriendlydevco/exec');
+var fspath = require('path');
 var monoxide = require('monoxide');
 var mlog = require('mocha-logger');
 var scenario = require('mongoose-scenario');
@@ -13,6 +14,8 @@ var mongoURI = 'mongodb://localhost/o-cli-test';
 var allowTeardown = process.env.TEARDOWN ? process.env.TEARDOWN=='true' : true;
 
 var setup = module.exports = {
+	o: fspath.resolve(`${__dirname}/../o.js`),
+
 	// init {{{
 	init() {
 		this.timeout(30 * 1000);
@@ -49,6 +52,9 @@ var setup = module.exports = {
 
 	// initEnvrionment {{{
 	initEnvironment() {
+		exec.defaults.logStdErr = mlog.log;
+		exec.defaults.bufferStdout = true;
+
 		exec.defaults.env = {
 			O_PROFILE: JSON.stringify({
 				uri: mongoURI,

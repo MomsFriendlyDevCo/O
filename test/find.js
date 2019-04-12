@@ -10,7 +10,7 @@ describe('`o find` CLI', function() {
 	afterEach(setup.teardown);
 
 	it('should dry-run a query', ()=>
-		exec([`${__dirname}/../o.js`, 'find', 'users', '--dry-run'], {logStderr: mlog.log, bufferStdout: true, json: true})
+		exec([`${setup.o}`, 'find', 'users', '--dry-run'], {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(0);
@@ -18,7 +18,7 @@ describe('`o find` CLI', function() {
 	);
 
 	it('should find all users', ()=>
-		exec([`${__dirname}/../o.js`, 'find', 'users'], {logStderr: mlog.log, bufferStdout: true, json: true})
+		exec([`${setup.o}`, 'find', 'users'], {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length.above(1);
@@ -28,7 +28,7 @@ describe('`o find` CLI', function() {
 	)
 
 	it('should find only the first two users', ()=>
-		exec([`${__dirname}/../o.js`, 'find', 'users', '--limit=2'], {logStderr: mlog.log, bufferStdout: true, json: true})
+		exec([`${setup.o}`, 'find', 'users', '--limit=2'], {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(2);
@@ -38,7 +38,7 @@ describe('`o find` CLI', function() {
 	)
 
 	it('should find only users with selected fields', ()=>
-		exec([`${__dirname}/../o.js`, 'find', 'users', '--select=_id,name'], {logStderr: mlog.log, bufferStdout: true, json: true})
+		exec([`${setup.o}`, 'find', 'users', '--select=_id,name'], {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length.above(0);
@@ -47,7 +47,7 @@ describe('`o find` CLI', function() {
 	)
 
 	it('should find matching users via query (JSON)', ()=>
-		exec([`${__dirname}/../o.js`, 'find', 'users', '{name: "Jane Quark"}'], {logStderr: mlog.log, bufferStdout: true, json: true})
+		exec([`${setup.o}`, 'find', 'users', '{name: "Jane Quark"}'], {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(1);
@@ -58,7 +58,7 @@ describe('`o find` CLI', function() {
 	)
 
 	it('should find matching users via query (Key/Val)', ()=>
-		exec([`${__dirname}/../o.js`, 'find', 'users', 'name=Jane Quark'], {logStderr: mlog.log, bufferStdout: true, json: true})
+		exec([`${setup.o}`, 'find', 'users', 'name=Jane Quark'], {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(1);
@@ -69,7 +69,7 @@ describe('`o find` CLI', function() {
 	)
 
 	it('should find matching users via query (--one + JSON)', ()=>
-		exec([`${__dirname}/../o.js`, 'find', 'users', '--one', '{name: "Jane Quark"}'], {logStderr: mlog.log, bufferStdout: true, json: true})
+		exec([`${setup.o}`, 'find', 'users', '--one', '{name: "Jane Quark"}'], {json: true})
 			.then(res => {
 				expect(res).to.be.an('object');
 				expect(res).to.have.property('name', 'Jane Quark');
@@ -79,7 +79,7 @@ describe('`o find` CLI', function() {
 	)
 
 	it('should find matching users via query (--one + Key/Val)', ()=>
-		exec([`${__dirname}/../o.js`, 'find', 'users', '--one', 'name=Jane Quark'], {logStderr: mlog.log, bufferStdout: true, json: true})
+		exec([`${setup.o}`, 'find', 'users', '--one', 'name=Jane Quark'], {json: true})
 			.then(res => {
 				expect(res).to.be.an('object');
 				expect(res).to.have.property('name', 'Jane Quark');
