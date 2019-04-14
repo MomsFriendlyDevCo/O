@@ -227,6 +227,7 @@ Promise.resolve()
 		_.forEach(session.functions, (v, k) => {
 			cli.command(k);
 			cli.action(()=> {
+				session.log(4, 'Running sub-command', v);
 				session.verbose = cli.verbose;
 				session.args = [
 					process.argv[0], // Original intepreter (usually node)
@@ -240,7 +241,7 @@ Promise.resolve()
 
 				Promise.resolve(require(v.path))
 					.then(module => {
-						if (!_.isFunction(module)) throw new Error('O module does not expose a function!');
+						if (!_.isFunction(module)) throw new Error(`O module "${v.path}" does not expose a function!`);
 						return Promise.resolve(module.call(session, session));
 					})
 					.then(()=> session.emit('close'))

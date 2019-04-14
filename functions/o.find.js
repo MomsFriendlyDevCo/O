@@ -3,6 +3,7 @@ var glob = require('globby');
 var monoxide = require('monoxide');
 var promisify = require('util').promisify;
 var timestring = require('timestring');
+var siftShorthand = require('sift-shorthand');
 
 module.exports = o => {
 	o.cli
@@ -56,7 +57,9 @@ module.exports = o => {
 			if (!monoxide.models[o.aggregation.model]) throw new Error(`Unknown model "${o.aggregation.model}"`);
 
 			var agg = [];
-			var query = o.parse.query();
+			var query = siftShorthand(o.cli.args);
+			o.log(3, 'Use query', query);
+
 			if (!_.isEmpty(query)) agg.push({$match: query});
 			if (!_.isEmpty(o.cli.select)) agg.push({$project: o.cli.select.reduce((total, v) => Object.assign(total, {[v]: 1}), {})});
 			if (!_.isEmpty(o.cli.sort)) agg.push({$sort: o.cli.sort});
