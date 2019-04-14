@@ -1,0 +1,14 @@
+[
+	{
+		"_ref": "company.acme",
+		"name": "Acme Inc"
+	},
+	{
+		"_ref": "company.aperture",
+		"name": "Aperture Science"
+	},
+	{
+		"_ref": "company.empty",
+		"name": "Empty Box Incoporated"
+	}
+]

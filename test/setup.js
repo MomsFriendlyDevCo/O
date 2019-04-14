@@ -15,6 +15,7 @@ var allowTeardown = process.env.TEARDOWN ? process.env.TEARDOWN=='true' : true;
 
 var setup = module.exports = {
 	o: fspath.resolve(`${__dirname}/../o.js`),
+	scenarios: require('./scenario'),
 
 	// init {{{
 	init() {
@@ -74,7 +75,7 @@ var setup = module.exports = {
 
 	// initScenarios {{{
 	initScenarios: function() {
-		return promisify(scenario.import)(require('./scenario'), {
+		return promisify(scenario.import)(setup.scenarios, {
 			connection: monoxide.connection,
 			nuke: true,
 		});
