@@ -19,7 +19,7 @@ module.exports = o => {
 		.option('-n, --dry-run', 'Dont actually run anything, return an empty array')
 		.option('-d, --delay <timestring>', 'Add a delay to each record retrieval', v => timestring(v), 0)
 		.option('--explain', 'Show the aggregation query that is being run (use --dry-run to not actually do anything)')
-		.parse(o.args);
+		.parse();
 
 	if (!o.profile.uri) throw new Error('No database URI specified');
 

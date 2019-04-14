@@ -216,41 +216,49 @@ Promise.resolve()
 	)
 	// }}}
 	// Create commander UI {{{
-	.then(()=> new Promise((resolve, reject) => {
-		var cli = session.cli = commander
-			.version(require('./package.json').version)
-			.name('o')
-			.usage('<function> [arguments]')
-			.option('-v, --verbose', 'Be verbose - use multiple to increase verbosity', (v, total) => total + 1, 0)
-			.allowUnknownOption() // Enable so we can pass thru arguments to sub-commands
+	.then(()=> {
+		var func = process.argv.slice(2).find(a => !a.startsWith('-')); // Find first probable command
 
-		_.forEach(session.functions, (v, k) => {
-			cli.command(k);
-			cli.action(()=> {
-				session.log(4, 'Running sub-command', v);
-				session.verbose = cli.verbose;
-				session.args = [
+		if (!func) { // No commands given - display universal help
+			session.cli = commander
+				.version(require('./package.json').version)
+				.name('o')
+				.usage('<function> [arguments]')
+				.option('-v, --verbose', 'Be verbose - use multiple to increase verbosity', (v, total) => total + 1, 0)
+				.parse(process.argv);
+		} else if (session.functions[func]) { // Pass control to sub-command
+			session.log(4, 'Running sub-command', func);
+			session.cli = new commander.Command() // Setup a stub Commander Command
+				.version(require('./package.json').version)
+				.name(`o ${func}`)
+				.usage('[arguments]')
+				.option('-v, --verbose', 'Be verbose - use multiple to increase verbosity', (v, total) => total + 1, 0)
+
+			// Sub-class the .parse function to always work with the rewritten argument array + inherit common parameters like verbose
+			var originalParse = session.cli.parse;
+			session.cli.parse = ()=> {
+				originalParse.call(session.cli, [
 					process.argv[0], // Original intepreter (usually node)
-					v.path, // Path to script (not this parent script)
+					session.functions[func].path, // Path to script (not this parent script)
 					...process.argv.slice(3), // Rest of command line after the shorthand command name
-				];
-				session.cli = new commander.Command()
-					.allowUnknownOption() // Enable so things like '-v' can be transfered
+				]);
+				session.verbose = session.cli.verbose;
+			};
 
-				eventer.extend(session); // Glue eventer onto session object
+			eventer.extend(session); // Glue eventer onto session object
 
-				Promise.resolve(require(v.path))
-					.then(module => {
-						if (!_.isFunction(module)) throw new Error(`O module "${v.path}" does not expose a function!`);
-						return Promise.resolve(module.call(session, session));
-					})
-					.then(()=> session.emit('close'))
-					.then(resolve)
-					.catch(reject)
-			})
-		});
-
-		cli.parse(process.argv);
-	}))
+			return Promise.resolve(require(session.functions[func].path))
+				.then(module => {
+					if (!_.isFunction(module)) throw new Error(`O module "${v.path}" does not expose a function!`);
+					return Promise.resolve(module.call(session, session));
+				})
+				.then(()=> session.emit('close'))
+		} else {
+			throw new Error(`Unknown O function: ${func}`);
+		}
+	})
 	// }}}
-	.catch(e => session.log(0, e))
+	.catch(e => {
+		session.log(0, e)
+		process.exit(1);
+	})

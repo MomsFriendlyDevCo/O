@@ -52,7 +52,7 @@ var setup = module.exports = {
 
 	// initEnvrionment {{{
 	initEnvironment() {
-		exec.defaults.logStdErr = mlog.log;
+		exec.defaults.logStderr = mlog.log;
 		exec.defaults.bufferStdout = true;
 
 		exec.defaults.env = {
