@@ -46,68 +46,6 @@ var session = { // Create initial session
 
 
 	/**
-	* Various parsing functions
-	* @var {Object}
-	*/
-	parse: {
-
-		/**
-		* Parse a query from a string or the available commandline
-		* @param {string|array <string>} [args] The string(s) to parse, read left-to-right. If omitted the o.cli.args array is used
-		* @returns {Object} A MongoDB / Sift compatible query
-		*/
-		query: args =>
-			_.castArray(args || session.cli.args)
-				.reduce((total, arg) => {
-					if (/^[\[|{]/.test(arg)) { // Looks like JSON / HanSON
-						_.merge(total, session.parse.object(arg));
-					} else { // Assume key=val as CSV
-						arg
-							.split(/\s*,\s*/)
-							.forEach(item =>
-								_.merge(total, session.parse.keyVal(item))
-							);
-					}
-					return total;
-				}, {}),
-
-
-		/**
-		* Parse an input string into a JavaScript object honoring hanson decoding settings
-		* @param {string} input The input string to parse
-		* @returns {*} The parsed object
-		*/
-		object: input =>
-			session.profile.hanson
-				? hanson.parse(input)
-				: JSON.parse(input),
-
-
-		/**
-		* Parse a key=val value
-		* Boolean values ('true', 'false', just the key == true) are set automatically
-		* Dotted notation is supported
-		* @param {string} input A single key=val setting
-		* @returns {Object} An object with the key and value set
-		*/
-		keyVal: input => {
-			var out = {};
-			var keyVal = input.split(/\s*=\s*/, 2);
-			if (!keyVal) { // Assume key=true
-				_.set(out, keyVal[0], true);
-			} else if (keyVal[1] == 'true') {
-				_.set(out, keyVal[0], true);
-			} else if (keyVal[1] == 'false') {
-				_.set(out, keyVal[0], false);
-			} else { // Key=Val
-				_.set(out, keyVal[0], keyVal[1]);
-			}
-			return out;
-		},
-	},
-
-
-	/**
 	* Various methods of outputting data
 	*/
 	output: {
