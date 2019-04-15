@@ -6,8 +6,8 @@ var setup = require('./setup');
 describe('Pipelines', function() {
 	this.timeout(60 * 1000); // 60s
 
-	beforeEach(setup.init);
-	afterEach(setup.teardown);
+	before(setup.init);
+	after(setup.teardown);
 
 	it('o find users | o select _id', ()=>
 		exec(`${setup.o} find users -vv | ${setup.o} select _id -vv`, {json: true})
@@ -65,6 +65,28 @@ describe('Pipelines', function() {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);
 				res.forEach(user => expect(user).to.have.property('status', 'active'));
+			})
+	)
+
+	it('o find users status=deleted | o set status=active', ()=>
+		exec(`${setup.o} find users status=deleted | ${setup.o} set status=active'`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(2);
+				res.forEach(user => expect(user).to.have.property('status', 'active'));
+			})
+	)
+
+	it('o find users | o set "name=Fake ${name}"', ()=>
+		exec(`${setup.o} find users | ${setup.o} filter status=active | ${setup.o} set "name=Fake\${name}"`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(3);
+				res.forEach(user => {
+					expect(user).to.have.property('status', 'active');
+					expect(user).to.have.property('name');
+					expect(user.name).to.match(/^Fake/);
+				});
 			})
 	)
 
