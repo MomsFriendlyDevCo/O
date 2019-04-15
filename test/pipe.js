@@ -45,12 +45,16 @@ describe('Pipelines', function() {
 			})
 	)
 
-	it('o find users | o throttle --delay=1s | o progress --per=1', ()=> {
+	it.only('o find users | o throttle --delay=1s | o progress --per=1 | o pluck _id', ()=> {
 		var startTime = Date.now();
-		return exec(`${setup.o} find users status=active | ${setup.o} throttle --delay=1s | ${setup.o} progress --per=1`, {json: true})
+		return exec(`${setup.o} find users status=active | ${setup.o} throttle --delay=1s | ${setup.o} progress --per=1 | ${setup.o} pluck _id`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);
+				res.forEach(r => {
+					expect(r).to.be.a('string');
+					expect(r).to.match(/^[0-9a-f]{24}/);
+				})
 				expect(Date.now() - startTime).to.be.at.least(3000);
 			})
 	})
