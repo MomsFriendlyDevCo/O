@@ -38,7 +38,7 @@
     "lodash": "^4.17.11",
     "monoxide": "0.0.124",
     "sift": "^7.0.1",
-    "sift-shorthand": "0.0.0",
+    "sift-shorthand": "0.0.1",
     "temp": "^0.9.0",
     "timestring": "^5.0.1"
   }
