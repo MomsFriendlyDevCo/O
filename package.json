@@ -29,7 +29,7 @@
   "dependencies": {
     "@momsfriendlydevco/eventer": "^1.1.0",
     "bfj": "^6.1.1",
-    "bfj-collections": "^1.0.1",
+    "bfj-collections": "^1.0.2",
     "commander": "^2.20.0",
     "description": "0.0.4",
     "globby": "^9.2.0",
