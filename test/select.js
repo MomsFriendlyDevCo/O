@@ -5,7 +5,7 @@ var setup = require('./setup');
 
 describe('`o select` CLI', function() {
 	this.timeout(10 * 1000);
-	beforeEach(setup.initEnvironment);
+	before(setup.initEnvironment);
 
 	it('should filter simple collection data', ()=>
 		exec([`${setup.o}`, 'select', 'name', `<${__dirname}/scenarios/users.json`], {json: true, pipe: true})

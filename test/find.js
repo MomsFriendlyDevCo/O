@@ -6,8 +6,8 @@ var setup = require('./setup');
 describe('`o find` CLI', function() {
 	this.timeout(60 * 1000); // 60s
 
-	beforeEach(setup.init);
-	afterEach(setup.teardown);
+	before(setup.init);
+	after(setup.teardown);
 
 	it('should dry-run a query', ()=>
 		exec([`${setup.o}`, 'find', 'users', '-vv', '--dry-run'], {json: true})

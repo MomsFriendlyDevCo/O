@@ -5,7 +5,7 @@ var setup = require('./setup');
 
 describe('`o throttle` CLI', function() {
 	this.timeout(30 * 1000);
-	beforeEach(setup.initEnvironment);
+	before(setup.initEnvironment);
 
 	it('should throttle simple collection data', ()=> {
 		var startTime = Date.now();
