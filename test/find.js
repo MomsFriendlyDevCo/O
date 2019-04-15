@@ -46,6 +46,18 @@ describe('`o find` CLI', function() {
 			})
 	)
 
+	it('should find only active users', ()=>
+		exec([`${setup.o}`, 'find', 'users', 'status=active', '-vvv'], {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(3);
+				res.forEach(user => {
+					expect(user).to.have.property('_id');
+					expect(user).to.have.property('status', 'active');
+				});
+			})
+	)
+
 	it('should find matching users via query (JSON)', ()=>
 		exec([`${setup.o}`, 'find', 'users', '{name: "Jane Quark"}', '-vv'], {json: true})
 			.then(res => {
