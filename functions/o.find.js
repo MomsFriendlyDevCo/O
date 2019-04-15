@@ -94,7 +94,7 @@ module.exports = o => {
 				o.aggregation.cursor.next()
 					.then(doc => {
 						if (doc) { // Fetched a document
-							o.output.doc({
+							return o.output.doc({
 								...doc,
 								_collection: o.aggregation.model,
 							});
