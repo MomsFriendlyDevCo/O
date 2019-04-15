@@ -1,79 +1,86 @@
 [
 	{
+		"_password": "ue",
 		"_ref": "users.joe",
+		"company": "company.acme",
+		"favourite": {
+			"animal": "dog",
+			"color": "red"
+		},
 		"name": "Joe Random",
-		"status": "active",
-		"company": "company.acme",
 		"role": "user",
-		"favourite": {
-			"color": "red",
-			"animal": "dog"
-		},
-		"_password": "ue" 	},
+		"status": "active"
+	},
 	{
+		"_password": "oeaeoeae",
 		"_ref": "users.jane",
+		"company": "company.acme",
+		"favourite": {
+			"animal": "cat",
+			"color": "yellow"
+		},
 		"name": "Jane Quark",
-		"status": "active",
-		"company": "company.acme",
 		"role": "user",
-		"favourite": {
-			"color": "yellow",
-			"animal": "cat"
-		},
-		"_password": "oeaeoeae" 	},
+		"status": "active"
+	},
 	{
+		"_password": "ao",
 		"_ref": "users.bob",
+		"company": "company.acme",
+		"favourite": {
+			"animal": "dog",
+			"color": "yellow"
+		},
 		"name": "Bob Bobart",
-		"status": "unverified",
-		"company": "company.acme",
 		"role": "user",
-		"favourite": {
-			"color": "yellow",
-			"animal": "dog"
-		},
-		"_password": "ao" 	},
+		"status": "unverified"
+	},
 	{
+		"_password": "ao",
 		"_ref": "users.dick",
+		"company": "company.aperture",
+		"favourite": {
+			"animal": "squirrel",
+			"color": "blue"
+		},
 		"name": "Dick deleteed",
-		"status": "deleted",
-		"company": "company.aperture",
 		"role": "user",
-		"favourite": {
-			"color": "blue",
-			"animal": "squirrel"
-		},
-		"_password": "ao" 	},
+		"status": "deleted"
+	},
 	{
+		"_password": "ao",
 		"_ref": "users.dick",
+		"company": "company.aperture",
+		"favourite": {
+			"animal": "dog",
+			"color": "blue"
+		},
 		"name": "Vallery Unverrifed",
-		"status": "unverified",
-		"company": "company.aperture",
 		"role": "user",
-		"favourite": {
-			"color": "blue",
-			"animal": "dog"
-		},
-		"_password": "ao" 	},
+		"status": "unverified"
+	},
 	{
+		"_password": "ao",
 		"_ref": "users.dick",
+		"company": "company.acme",
+		"favourite": {
+			"animal": "dog",
+			"color": "red"
+		},
 		"name": "Don Delete",
-		"status": "deleted",
-		"company": "company.acme",
 		"role": "user",
-		"favourite": {
-			"color": "red",
-			"animal": "dog"
-		},
-		"_password": "ao" 	},
+		"status": "deleted"
+	},
 	{
+		"_password": "ao",
 		"_ref": "users.dick",
-		"name": "Adam Admin",
-		"status": "active",
 		"company": "company.acme",
-		"role": "admin",
 		"favourite": {
-			"color": "red",
-			"animal": "dog"
+			"animal": "dog",
+			"color": "red"
 		},
-		"_password": "ao" 	}
+		"name": "Adam Admin",
+		"role": "admin",
+		"status": "active"
+	}
 ]

@@ -1,6 +1,8 @@
-#!/usr/bin/env node --no-warnings
+#!/usr/bin/env node
 
 var _ = require('lodash');
+var bfj = require('bfj');
+var bfjc = require('bfj-collections');
 var commander = require('commander');
 var eventer = require('@momsfriendlydevco/eventer');
 var fs = require('fs').promises;
@@ -46,7 +48,31 @@ var session = { // Create initial session
 
 
 	/**
+	* Various methods of accepting data
+	* @var {Object}
+	*/
+	input: {
+
+		/**
+		* Request that STDIN provides a stream of documents
+		* @emits doc Emitted as (doc) on each found JSON collection document, to output use o.output.doc() (or not if filtering)
+		* @returns {Promise} A promise which resolves when the collection stream has completed
+		*/
+		requestCollectionStream: ()=> new Promise((resolve, reject) => {
+			if (process.stdin.isTTY) return reject('Input stream is a TTY - should be a stream of document data');
+
+			bfjc(process.stdin, {pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter
+				.on('bfjc', session.emit.bind(session, 'doc'))
+				.on(bfj.events.end, resolve) // Resolve when the stream terminates
+				.on(bfj.events.error, reject)
+		}),
+
+	},
+
+
+	/**
 	* Various methods of outputting data
+	* @var {Object}
 	*/
 	output: {
 		/**
@@ -64,16 +90,10 @@ var session = { // Create initial session
 		* @returns {Promise} A promise which will resolve when the document has been sent to STDOUT
 		*/
 		doc: doc =>
-			Promise.resolve()
-				.then(()=> { // Start initial document array or continue
-					if (!session.output._startedCollection) { // Start
-						return session.output.start()
-					} else if (session.output._docCount > 0) { // Continue
-						return session.output.write(',');
-					}
-				})
-				.then(()=> session.output._docCount++)
-				.then(()=> session.output.write(session.output.json(doc))),
+			session.output.write(
+				(session.output._docCount++ > 0 ? ',' : '') // Prefix with comma?
+				+ session.output.json(doc)
+			),
 
 		/**
 		* Open the connection to STDOUT
@@ -122,12 +142,15 @@ var session = { // Create initial session
 		* @param {string|Buffer} text The body text to output to STDOUT
 		* @returns {Promise} A promise which will resolve when the stream write finishes
 		*/
-		write: text => new Promise((resolve, reject) =>
-			process.stdout.write(text, err => {
-				if (err) reject(err);
-				resolve();
-			})
-		),
+		write: text => new Promise((resolve, reject) => {
+			var hasWritten = process.stdout.write(text, 'utf-8');
+			if (!hasWritten) {
+				process.stdout.once('drain', resolve);
+			} else {
+				process.nextTick(resolve);
+			}
+		}),
+
 
 		_startedCollection: false,
 		_docCount: 0,
@@ -187,7 +210,7 @@ Promise.resolve()
 
 			return Promise.resolve(require(session.functions[func].path))
 				.then(module => {
-					if (!_.isFunction(module)) throw new Error(`O module "${v.path}" does not expose a function!`);
+					if (!_.isFunction(module)) throw new Error(`O module "${session.functions[func].path}" does not return a promise!`);
 					return Promise.resolve(module.call(session, session));
 				})
 				.then(()=> session.emit('close'))
