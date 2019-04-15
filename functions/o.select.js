@@ -1,5 +1,4 @@
 var _ = require('lodash');
-var cli = require('commander');
 module.exports = o => {
 	o.cli
 		.description('Select a series of fields from an input collection')

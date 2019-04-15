@@ -1,4 +1,3 @@
-var cli = require('commander');
 var timestring = require('timestring');
 
 module.exports = o => {
