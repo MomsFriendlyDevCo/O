@@ -45,7 +45,7 @@ describe('Pipelines', function() {
 			})
 	)
 
-	it.only('o find users | o throttle --delay=1s | o progress --per=1 | o pluck _id', ()=> {
+	it('o find users | o throttle --delay=1s | o progress --per=1 | o pluck _id', ()=> {
 		var startTime = Date.now();
 		return exec(`${setup.o} find users status=active | ${setup.o} throttle --delay=1s | ${setup.o} progress --per=1 | ${setup.o} pluck _id`, {json: true})
 			.then(res => {
@@ -58,5 +58,14 @@ describe('Pipelines', function() {
 				expect(Date.now() - startTime).to.be.at.least(3000);
 			})
 	})
+
+	it('o find users | o filter status=active', ()=>
+		exec(`${setup.o} find users | ${setup.o} filter status=active'`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(3);
+				res.forEach(user => expect(user).to.have.property('status', 'active'));
+			})
+	)
 
 });
