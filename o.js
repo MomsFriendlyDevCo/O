@@ -61,8 +61,13 @@ var session = { // Create initial session
 		requestCollectionStream: ()=> new Promise((resolve, reject) => {
 			if (process.stdin.isTTY) return reject('Input stream is a TTY - should be a stream of document data');
 
-			bfjc(process.stdin, {pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter
-				.on('bfjc', session.emit.bind(session, 'doc'))
+			var docIndex = 0;
+			var streamer = bfjc(process.stdin, {pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
+				.on('bfjc', doc => {
+					var resume = streamer.pause(); // Pause streaming each time we accept a doc and wait for the promise to resolve
+					session.emit('doc', doc, docIndex++)
+						.then(()=> resume()) // ... then continue
+				})
 				.on(bfj.events.end, resolve) // Resolve when the stream terminates
 				.on(bfj.events.error, reject)
 		}),
