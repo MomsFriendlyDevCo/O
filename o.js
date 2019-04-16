@@ -58,7 +58,10 @@ var session = { // Create initial session
 					session.on('close', ()=> monoxide.disconnect())
 				})
 				// }}}
-				// Connect to the database
+				// Connect to the database {{{
+				.then(()=> {
+					if (!session.profile.uri) throw new Error('No database URI specified');
+				})
 				.then(()=> promisify(monoxide.use)(['promises', 'iterators']))
 				.then(()=> session.log(1, 'Connecting to', session.profile.uri.replace(/:\/\/(.*?):(.*?)\//, '://\1:***/')))
 				.then(()=> monoxide.connect(session.profile.uri, session.profile.connectionOptions))

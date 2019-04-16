@@ -8,8 +8,10 @@ module.exports = o => {
 		.usage('[collection]')
 		.parse();
 
+	if (o.cli.args.length > 1) throw new Error('Only one collection name can be used to save documents');
+
 	o.on('doc', doc => {
-		var collection = _.get(doc, '_collection') || o.cli.collection;
+		var collection = _.get(doc, '_collection') || o.cli.args[0];
 
 		if (!collection) {
 			throw new Error(`No idea where to save incomming document ${doc._id}, either specify a collection or ensure it has a _collection meta key`);

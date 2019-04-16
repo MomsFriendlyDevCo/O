@@ -18,8 +18,6 @@ module.exports = o => {
 		.option('--explain', 'Show the aggregation query that is being run (use --dry-run to not actually do anything)')
 		.parse();
 
-	if (!o.profile.uri) throw new Error('No database URI specified');
-
 	return Promise.resolve()
 		// Sanity checks {{{
 		.then(()=> {

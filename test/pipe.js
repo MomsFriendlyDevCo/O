@@ -90,4 +90,17 @@ describe('Pipelines', function() {
 			})
 	)
 
+	it('o find users status=active | o populate company', ()=>
+		exec(`${setup.o} find users status=active | ${setup.o} populate company`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(3);
+				res.forEach(user => {
+					expect(user).to.have.property('status', 'active');
+					expect(user).to.have.property('company');
+					expect(user.company).to.be.an('object');
+				});
+			})
+	)
+
 });
