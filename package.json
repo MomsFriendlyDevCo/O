@@ -20,7 +20,7 @@
   "author": "Matt Carter <m@ttcarter.com>",
   "license": "MIT",
   "devDependencies": {
-    "@momsfriendlydevco/exec": "^1.2.1",
+    "@momsfriendlydevco/exec": "^1.2.2",
     "chai": "^4.2.0",
     "mocha": "^6.1.2",
     "mocha-logger": "^1.0.6",

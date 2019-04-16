@@ -48,6 +48,36 @@ var session = { // Create initial session
 
 
 	/**
+	* Various database handling functionality
+	*/
+	db: {
+		connect: ()=>
+			Promise.resolve()
+				// Queue up clean-up events {{{
+				.then(()=> {
+					session.on('close', ()=> monoxide.disconnect())
+				})
+				// }}}
+				// Connect to the database
+				.then(()=> promisify(monoxide.use)(['promises', 'iterators']))
+				.then(()=> session.log(1, 'Connecting to', session.profile.uri.replace(/:\/\/(.*?):(.*?)\//, '://\1:***/')))
+				.then(()=> monoxide.connect(session.profile.uri, session.profile.connectionOptions))
+				.then(()=> session.log(1, 'Connected'))
+				// }}}
+				// Include all schema files {{{
+				.then(()=> glob(session.profile.schemas))
+				.then(schemaPaths => schemaPaths.forEach(path => {
+					session.log(2, `Including schema file "${path}"`);
+					require(path);
+				}))
+				.then(()=> session.db.models = monoxide.models),
+				// }}}
+
+		models: {}, // Eventual pointer to the available database models when the connection has finished
+	},
+
+
+	/**
 	* Various methods of accepting data
 	* @var {Object}
 	*/

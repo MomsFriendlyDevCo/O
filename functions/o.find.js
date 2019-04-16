@@ -1,7 +1,4 @@
 var _ = require('lodash');
-var glob = require('globby');
-var monoxide = require('monoxide');
-var promisify = require('util').promisify;
 var timestring = require('timestring');
 var siftShorthand = require('sift-shorthand');
 
@@ -17,13 +14,11 @@ module.exports = o => {
 		.option('-l, --limit <number>', 'Limit the result to the first number of documents')
 		.option('-k, --skip <number>', 'Skip over the first number of documents')
 		.option('-n, --dry-run', 'Dont actually run anything, return an empty array')
-		.option('-d, --delay <timestring>', 'Add a delay to each record retrieval', v => timestring(v), 0)
+		.option('-d, --delay <timestring>', 'Add a delay to each record retrieval', v => timestring(v, 'ms'), 0)
 		.option('--explain', 'Show the aggregation query that is being run (use --dry-run to not actually do anything)')
 		.parse();
 
 	if (!o.profile.uri) throw new Error('No database URI specified');
-
-	o.on('close', ()=> monoxide.disconnect())
 
 	return Promise.resolve()
 		// Sanity checks {{{
@@ -34,19 +29,7 @@ module.exports = o => {
 			if (o.cli.skip && (o.cli.skip < 0 || !isFinite(o.cli.skip))) throw new Error('--skip must be a positive (or zero), finite integer');
 		})
 		// }}}
-		// Connect to DB {{{
-		.then(()=> promisify(monoxide.use)(['promises', 'iterators']))
-		.then(()=> o.log(1, 'Connecting to', o.profile.uri.replace(/:\/\/(.*?):(.*?)\//, '://\1:***/')))
-		.then(()=> monoxide.connect(o.profile.uri, o.profile.connectionOptions))
-		.then(()=> o.log(1, 'Connected'))
-		// }}}
-		// Include all schema files {{{
-		.then(()=> glob(o.profile.schemas))
-		.then(schemaPaths => schemaPaths.forEach(path => {
-			o.log(2, `Including schema file "${path}"`);
-			require(path);
-		}))
-		// }}}
+		.then(()=> o.db.connect())
 		// Compute aggregation query {{{
 		.then(()=> {
 			o.aggregation = {
@@ -54,7 +37,7 @@ module.exports = o => {
 				model: o.cli.args.shift(),
 				query: undefined, // Calculated in this step
 			};
-			if (!monoxide.models[o.aggregation.model]) throw new Error(`Unknown model "${o.aggregation.model}"`);
+			if (!o.db.models[o.aggregation.model]) throw new Error(`Unknown model "${o.aggregation.model}"`);
 
 			var agg = [];
 			var query = siftShorthand(o.cli.args);
@@ -77,7 +60,7 @@ module.exports = o => {
 				return undefined;
 			} else {
 				return new Promise((resolve, reject) =>
-					monoxide.models[o.aggregation.model].$mongoModel.aggregate(o.aggregation.query, {cursor: {batchSize: 0}}, (err, cursor) => {
+					o.db.models[o.aggregation.model].$mongoModel.aggregate(o.aggregation.query, {cursor: {batchSize: 0}}, (err, cursor) => {
 						if (err) return reject(err);
 						o.aggregation.cursor = cursor;
 						resolve();
