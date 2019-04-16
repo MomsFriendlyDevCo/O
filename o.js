@@ -94,7 +94,7 @@ var o = { // Create initial session
 		/**
 		* Request that STDIN provides a stream of documents
 		* When blocking this function flushes to disk then reads back the resultant file
-		* NOTE: Binding to the collection emitter uses tons of RAM, bind to the collectionFile event and process the output file manually if possible
+		* NOTE: Binding to the collection emitter uses tons of RAM to cache the results, bind to the collectionFile event and process the output file manually if possible
 		* @param {boolean} [blocking=false] Block the stream and wait for all documents before emitting anything, useful with 'collection*' emitters to work with an entire collection
 		* @emits doc Emitted on each document, to output use `o.output.doc()`. If nothing binds to this event no documents are output (use `collections` or some other binding to handle output elsewhere). Called as (doc)
 		* @emits collection Emitted with the full collection object when we have it. Subscribing to this emitter is not recommended as its very very memory intensive - try to work with the raw file in `collectionFile` instead. Called as (collectionDocs)
@@ -125,7 +125,7 @@ var o = { // Create initial session
 				})
 				.then(readStream => new Promise((resolve, reject) => { // Start streaming from the input stream
 					var docIndex = 0;
-					var streamer = bfjc(readStream, {pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
+					var streamer = bfjc(readStream, {allowScalars: true, pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
 						.on('bfjc', doc => {
 							if (o.listenerCount('collection')) collection.push(doc);
 							var resume = streamer.pause(); // Pause streaming each time we accept a doc and wait for the promise to resolve
