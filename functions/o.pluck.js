@@ -8,7 +8,7 @@ module.exports = o => {
 	if (!o.cli.args.length) throw new Error('At least one field must be specified to pluck');
 
 	o.on('doc', doc =>
-		o.output.doc(doc[o.cli.args[0]])
+		o.output.doc(_.get(doc, o.cli.args[0]))
 	);
 
 	return Promise.resolve()
