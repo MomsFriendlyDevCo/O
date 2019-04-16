@@ -13,7 +13,7 @@ var ini = require('ini');
 var monoxide = require('monoxide');
 var promisify = require('util').promisify;
 
-var session = { // Create initial session
+var o = { // Create initial session
 	verbose: 0,
 	functions: {}, // Key is short (basename) function name sans 'o.*.js` trimming, value is the require'd module export which should be {description$, help(), exec()}
 	settings: {
@@ -41,9 +41,9 @@ var session = { // Create initial session
 	log: (...msg) => {
 		if (msg.length && typeof msg[0] == 'number') { // Supplied a verbosity number
 			var verbosity = msg.shift();
-			if (session.verbose < verbosity) return; // Not in a verbose-enough mode to output
+			if (o.verbose < verbosity) return; // Not in a verbose-enough mode to output
 		}
-		console.warn.apply(session, msg);
+		console.warn.apply(o, msg);
 	},
 
 
@@ -55,25 +55,25 @@ var session = { // Create initial session
 			Promise.resolve()
 				// Queue up clean-up events {{{
 				.then(()=> {
-					session.on('close', ()=> monoxide.disconnect())
+					o.on('close', ()=> monoxide.disconnect())
 				})
 				// }}}
 				// Connect to the database {{{
 				.then(()=> {
-					if (!session.profile.uri) throw new Error('No database URI specified');
+					if (!o.profile.uri) throw new Error('No database URI specified');
 				})
 				.then(()=> promisify(monoxide.use)(['promises', 'iterators']))
-				.then(()=> session.log(1, 'Connecting to', session.profile.uri.replace(/:\/\/(.*?):(.*?)\//, '://\1:***/')))
-				.then(()=> monoxide.connect(session.profile.uri, session.profile.connectionOptions))
-				.then(()=> session.log(1, 'Connected'))
+				.then(()=> o.log(1, 'Connecting to', o.profile.uri.replace(/:\/\/(.*?):(.*?)\//, '://\1:***/')))
+				.then(()=> monoxide.connect(o.profile.uri, o.profile.connectionOptions))
+				.then(()=> o.log(1, 'Connected'))
 				// }}}
 				// Include all schema files {{{
-				.then(()=> glob(session.profile.schemas))
+				.then(()=> glob(o.profile.schemas))
 				.then(schemaPaths => schemaPaths.forEach(path => {
-					session.log(2, `Including schema file "${path}"`);
+					o.log(2, `Including schema file "${path}"`);
 					require(path);
 				}))
-				.then(()=> session.db.models = monoxide.models),
+				.then(()=> o.db.models = monoxide.models),
 				// }}}
 
 		models: {}, // Eventual pointer to the available database models when the connection has finished
@@ -98,7 +98,7 @@ var session = { // Create initial session
 			var streamer = bfjc(process.stdin, {pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
 				.on('bfjc', doc => {
 					var resume = streamer.pause(); // Pause streaming each time we accept a doc and wait for the promise to resolve
-					session.emit('doc', doc, docIndex++)
+					o.emit('doc', doc, docIndex++)
 						.then(()=> resume()) // ... then continue
 				})
 				.on(bfj.events.end, resolve) // Resolve when the stream terminates
@@ -117,7 +117,7 @@ var session = { // Create initial session
 		* Output an object similar to JSON.stringify but honoring pretty-print settings
 		*/
 		json: obj =>
-			session.profile.pretty
+			o.profile.pretty
 				? JSON.stringify(obj, null, '\t')
 				: JSON.stringify(obj),
 
@@ -128,9 +128,9 @@ var session = { // Create initial session
 		* @returns {Promise} A promise which will resolve when the document has been sent to STDOUT
 		*/
 		doc: doc =>
-			session.output.write(
-				(session.output._docCount++ > 0 ? ',' : '') // Prefix with comma?
-				+ session.output.json(doc)
+			o.output.write(
+				(o.output._docCount++ > 0 ? ',' : '') // Prefix with comma?
+				+ o.output.json(doc)
 			),
 
 		/**
@@ -146,9 +146,9 @@ var session = { // Create initial session
 		* @returns {Promise} A promise which will resolve when the output stream has been instanciated
 		*/
 		startCollection: ()=> {
-			session.output._startedCollection = true;
-			return session.output.start()
-				.then(()=> session.output.write('['));
+			o.output._startedCollection = true;
+			return o.output.start()
+				.then(()=> o.output.write('['));
 		},
 
 
@@ -170,9 +170,9 @@ var session = { // Create initial session
 		*/
 		endCollection: ()=>
 			Promise.resolve()
-				.then(()=> session.output._startedCollection && session.output.write(']'))
-				.then(()=> session.output._startedCollection = false)
-				.then(()=> session.output.end()),
+				.then(()=> o.output._startedCollection && o.output.write(']'))
+				.then(()=> o.output._startedCollection = false)
+				.then(()=> o.output.end()),
 
 
 		/**
@@ -200,15 +200,15 @@ Promise.resolve()
 	.then(()=> process.env.HOME &&
 		fs.readFile(fspath.join(process.env.HOME, '.o'))
 			.then(contents => ini.decode(contents))
-			.then(contents => _.merge(session.settings, contents))
+			.then(contents => _.merge(o.settings, contents))
 			.catch(()=> {}) // Ignore non-existant config files
 	)
-	.then(()=> process.env.O_PROFILE && _.merge(session.profile, JSON.parse(process.env.O_PROFILE)))
+	.then(()=> process.env.O_PROFILE && _.merge(o.profile, JSON.parse(process.env.O_PROFILE)))
 	// }}}
 	// Discover all `o` functions {{{
-	.then(()=> glob(session.settings.global.includePaths))
+	.then(()=> glob(o.settings.global.includePaths))
 	.then(paths =>
-		session.functions = _(paths)
+		o.functions = _(paths)
 			.mapKeys(path => fspath.basename(path).replace(/^o\./, '').replace(/\.js$/, ''))
 			.mapValues(path => ({path}))
 			.value()
@@ -219,7 +219,7 @@ Promise.resolve()
 		var func = process.argv.slice(2).find(a => !a.startsWith('-')); // Find first probable command
 
 		if (!func) { // No commands given - display universal help
-			session.cli = commander
+			o.cli = commander
 				.version(require('./package.json').version)
 				.name('o')
 				.usage('<function> [arguments]')
@@ -228,44 +228,44 @@ Promise.resolve()
 					console.log('');
 					console.log('Available commands:');
 					console.log('');
-					_.forEach(session.functions, (v, k) => console.log('  o', k));
+					_.forEach(o.functions, (v, k) => console.log('  o', k));
 					console.log('(Use `o <function> --help` for help with individual commands)');
 					console.log('');
 				})
 				.parse(process.argv)
-		} else if (session.functions[func]) { // Pass control to sub-command
-			session.log(4, 'Running sub-command', func);
-			session.cli = new commander.Command() // Setup a stub Commander Command
+		} else if (o.functions[func]) { // Pass control to sub-command
+			o.log(4, 'Running sub-command', func);
+			o.cli = new commander.Command() // Setup a stub Commander Command
 				.version(require('./package.json').version)
 				.name(`o ${func}`)
 				.usage('[arguments]')
 				.option('-v, --verbose', 'Be verbose - use multiple to increase verbosity', (v, total) => total + 1, 0)
 
 			// Sub-class the .parse function to always work with the rewritten argument array + inherit common parameters like verbose
-			var originalParse = session.cli.parse;
-			session.cli.parse = ()=> {
-				originalParse.call(session.cli, [
+			var originalParse = o.cli.parse;
+			o.cli.parse = ()=> {
+				originalParse.call(o.cli, [
 					process.argv[0], // Original intepreter (usually node)
-					session.functions[func].path, // Path to script (not this parent script)
+					o.functions[func].path, // Path to script (not this parent script)
 					...process.argv.slice(3), // Rest of command line after the shorthand command name
 				]);
-				session.verbose = session.cli.verbose;
+				o.verbose = o.cli.verbose;
 			};
 
-			eventer.extend(session); // Glue eventer onto session object
+			eventer.extend(o); // Glue eventer onto session object
 
-			return Promise.resolve(require(session.functions[func].path))
+			return Promise.resolve(require(o.functions[func].path))
 				.then(module => {
-					if (!_.isFunction(module)) throw new Error(`O module "${session.functions[func].path}" does not return a promise!`);
-					return Promise.resolve(module.call(session, session));
+					if (!_.isFunction(module)) throw new Error(`O module "${o.functions[func].path}" does not return a promise!`);
+					return Promise.resolve(module.call(o, o));
 				})
-				.then(()=> session.emit('close'))
+				.then(()=> o.emit('close'))
 		} else {
 			throw new Error(`Unknown O function: ${func}`);
 		}
 	})
 	// }}}
 	.catch(e => {
-		session.log(0, e)
+		o.log(0, e)
 		process.exit(1);
 	})
