@@ -221,7 +221,15 @@ Promise.resolve()
 				.name('o')
 				.usage('<function> [arguments]')
 				.option('-v, --verbose', 'Be verbose - use multiple to increase verbosity', (v, total) => total + 1, 0)
-				.parse(process.argv);
+				.on('--help', ()=> {
+					console.log('');
+					console.log('Available commands:');
+					console.log('');
+					_.forEach(session.functions, (v, k) => console.log('  o', k));
+					console.log('(Use `o <function> --help` for help with individual commands)');
+					console.log('');
+				})
+				.parse(process.argv)
 		} else if (session.functions[func]) { // Pass control to sub-command
 			session.log(4, 'Running sub-command', func);
 			session.cli = new commander.Command() // Setup a stub Commander Command
