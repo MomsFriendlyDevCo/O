@@ -10,7 +10,7 @@ describe('Pipelines', function() {
 	after(setup.teardown);
 
 	it('o find users | o select _id', ()=>
-		exec(`${setup.o} find users -vv | ${setup.o} select _id -vv`, {json: true})
+		exec(`o find users -vv | o select _id -vv`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(7);
@@ -19,7 +19,7 @@ describe('Pipelines', function() {
 	)
 
 	it('o find users | o limit 3', ()=>
-		exec(`${setup.o} find users | ${setup.o} limit 3`, {json: true})
+		exec(`o find users | o limit 3`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);
@@ -28,7 +28,7 @@ describe('Pipelines', function() {
 	)
 
 	it('o find users | o limit 3 | o select _id', ()=>
-		exec(`${setup.o} find users | ${setup.o} limit 2 | ${setup.o} select _id`, {json: true})
+		exec(`o find users | o limit 2 | o select _id`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(2);
@@ -37,7 +37,7 @@ describe('Pipelines', function() {
 	)
 
 	it('o find users | o skip 1 | o limit 2 | o select _id', ()=>
-		exec(`${setup.o} find users | ${setup.o} skip 1 | ${setup.o} limit 2 | ${setup.o} select _id`, {json: true})
+		exec(`o find users | o skip 1 | o limit 2 | o select _id`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(2);
@@ -47,7 +47,7 @@ describe('Pipelines', function() {
 
 	it('o find users | o throttle --delay=1s | o progress --per=1 | o pluck _id', ()=> {
 		var startTime = Date.now();
-		return exec(`${setup.o} find users status=active | ${setup.o} throttle --delay=1s | ${setup.o} progress --per=1 | ${setup.o} pluck _id`, {json: true})
+		return exec(`o find users status=active | o throttle --delay=1s | o progress --per=1 | o pluck _id`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);
@@ -60,7 +60,7 @@ describe('Pipelines', function() {
 	})
 
 	it('o find users | o filter status=active', ()=>
-		exec(`${setup.o} find users | ${setup.o} filter status=active'`, {json: true})
+		exec(`o find users | o filter status=active'`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);
@@ -69,7 +69,7 @@ describe('Pipelines', function() {
 	)
 
 	it('o find users status=deleted | o set status=active', ()=>
-		exec(`${setup.o} find users status=deleted | ${setup.o} set status=active'`, {json: true})
+		exec(`o find users status=deleted | o set status=active'`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(2);
@@ -78,7 +78,7 @@ describe('Pipelines', function() {
 	)
 
 	it('o find users | o set "name=Fake ${name}"', ()=>
-		exec(`${setup.o} find users | ${setup.o} filter status=active | ${setup.o} set "name=Fake\${name}"`, {json: true})
+		exec(`o find users | o filter status=active | o set "name=Fake\${name}"`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);
@@ -91,7 +91,7 @@ describe('Pipelines', function() {
 	)
 
 	it('o find users status=active | o populate company', ()=>
-		exec(`${setup.o} find users status=active | ${setup.o} populate company`, {json: true})
+		exec(`o find users status=active | o populate company`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);

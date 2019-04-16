@@ -9,7 +9,7 @@ describe('`o populate` CLI', function() {
 	after(setup.teardown);
 
 	it('o find users | o populate company', ()=>
-		exec(`${setup.o} find users | ${setup.o} populate company`, {json: true})
+		exec(`o find users | o populate company`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(7);
@@ -24,7 +24,7 @@ describe('`o populate` CLI', function() {
 
 
 	it('o find users | o populate company=companyDoc', ()=>
-		exec(`${setup.o} find users | ${setup.o} populate company=companyDoc`, {json: true})
+		exec(`o find users | o populate company=companyDoc`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(7);

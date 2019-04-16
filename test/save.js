@@ -10,7 +10,7 @@ describe('`o save` CLI', function() {
 	afterEach(setup.teardown);
 
 	it('o find users status=deleted | o set status=active | o save', ()=>
-		exec(`${setup.o} find users status=deleted | ${setup.o} set status=active | ${setup.o} save`, {json: true})
+		exec(`o find users status=deleted | o set status=active | o save`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(2);

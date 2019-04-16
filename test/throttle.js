@@ -10,7 +10,7 @@ describe('`o throttle` CLI', function() {
 	it('should throttle simple collection data', ()=> {
 		var startTime = Date.now();
 
-		return exec([`${setup.o}`, 'throttle', '--delay=1s', `<${__dirname}/scenarios/users.json`], {json: true, pipe: true})
+		return exec(['o', 'throttle', '--delay=1s', `<${__dirname}/scenarios/users.json`], {json: true, pipe: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(7);

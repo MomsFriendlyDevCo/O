@@ -8,7 +8,7 @@ describe('`o select` CLI', function() {
 	before(setup.initEnvironment);
 
 	it('should filter simple collection data', ()=>
-		exec([`${setup.o}`, 'select', 'name', `<${__dirname}/scenarios/users.json`], {json: true, pipe: true})
+		exec(['o', 'select', 'name', `<${__dirname}/scenarios/users.json`], {json: true, pipe: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(7);

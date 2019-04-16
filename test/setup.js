@@ -14,7 +14,6 @@ var mongoURI = 'mongodb://localhost/o-cli-test';
 var allowTeardown = process.env.TEARDOWN ? process.env.TEARDOWN=='true' : true;
 
 var setup = module.exports = {
-	o: fspath.resolve(`${__dirname}/../o.js`),
 	scenarios: require('./scenario'),
 
 	// init {{{
@@ -55,6 +54,7 @@ var setup = module.exports = {
 	initEnvironment() {
 		exec.defaults.logStderr = mlog.log;
 		exec.defaults.bufferStdout = true;
+		exec.defaults.alias = {o: fspath.resolve(__dirname, '..', 'o.js')};
 
 		exec.defaults.env = {
 			O_PROFILE: JSON.stringify({
