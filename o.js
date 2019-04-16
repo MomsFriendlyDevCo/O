@@ -5,13 +5,18 @@ var bfj = require('bfj');
 var bfjc = require('bfj-collections');
 var commander = require('commander');
 var eventer = require('@momsfriendlydevco/eventer');
-var fs = require('fs').promises;
+var fs = require('fs');
 var fspath = require('path');
 var glob = require('globby');
 var hanson = require('hanson');
 var ini = require('ini');
 var monoxide = require('monoxide');
 var promisify = require('util').promisify;
+var temp = require('temp');
+
+// BUGFIX: Tell fs.promises to STFU about experimental support {{{
+if (Object.getOwnPropertyDescriptor(fs, 'promises')) Object.defineProperty(module.exports, 'promises', {get() { return fs.promises }})
+// }}}
 
 var o = { // Create initial session
 	verbose: 0,
@@ -88,22 +93,50 @@ var o = { // Create initial session
 
 		/**
 		* Request that STDIN provides a stream of documents
-		* @emits doc Emitted as (doc) on each found JSON collection document, to output use o.output.doc() (or not if filtering)
+		* When blocking this function flushes to disk then reads back the resultant file
+		* NOTE: Binding to the collection emitter uses tons of RAM, bind to the collectionFile event and process the output file manually if possible
+		* @param {boolean} [blocking=false] Block the stream and wait for all documents before emitting anything, useful with 'collection*' emitters to work with an entire collection
+		* @emits doc Emitted on each document, to output use `o.output.doc()`. If nothing binds to this event no documents are output (use `collections` or some other binding to handle output elsewhere). Called as (doc)
+		* @emits collection Emitted with the full collection object when we have it. Subscribing to this emitter is not recommended as its very very memory intensive - try to work with the raw file in `collectionFile` instead. Called as (collectionDocs)
+		* @emits collectionFile (only if blocking=true) Emitted when a collection temporary file name has been allocated. Called as (path)
 		* @returns {Promise} A promise which resolves when the collection stream has completed
 		*/
-		requestCollectionStream: ()=> new Promise((resolve, reject) => {
+		requestCollectionStream: (blocking = false) => {
 			if (process.stdin.isTTY) return reject('Input stream is a TTY - should be a stream of document data');
+			var collection = []; // Collection cache
 
-			var docIndex = 0;
-			var streamer = bfjc(process.stdin, {pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
-				.on('bfjc', doc => {
-					var resume = streamer.pause(); // Pause streaming each time we accept a doc and wait for the promise to resolve
-					o.emit('doc', doc, docIndex++)
-						.then(()=> resume()) // ... then continue
+			return Promise.resolve()
+				.then(()=> {
+					if (!blocking) {
+						return process.stdin;
+					} else {
+						var tempFile = temp.path({prefix: 'o.', suffix: '.json'});
+						o.log(3, 'Using blocking temporary file', tempFile);
+						return Promise.resolve()
+							.then(()=> o.on('close', ()=> fs.promises.unlink(tempFile))) // Clean up the tempFile when we exit
+							.then(()=> o.emit('collectionFile', tempFile))
+							.then(()=> new Promise((resolve, reject) => {
+								var writeStream = fs.createWriteStream(tempFile)
+									.on('close', ()=> resolve(fs.createReadStream(tempFile)))
+
+								process.stdin.pipe(writeStream);
+							})) // Exit with writeStream context
+					}
 				})
-				.on(bfj.events.end, resolve) // Resolve when the stream terminates
-				.on(bfj.events.error, reject)
-		}),
+				.then(readStream => new Promise((resolve, reject) => { // Start streaming from the input stream
+					var docIndex = 0;
+					var streamer = bfjc(readStream, {pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
+						.on('bfjc', doc => {
+							if (o.listenerCount('collection')) collection.push(doc);
+							var resume = streamer.pause(); // Pause streaming each time we accept a doc and wait for the promise to resolve
+							o.emit('doc', doc, docIndex++)
+								.then(()=> resume()) // ... then continue
+						})
+						.on(bfj.events.end, resolve) // Resolve when the stream terminates
+						.on(bfj.events.error, reject)
+				}))
+				.then(()=> o.emit('collection', collection))
+		},
 
 	},
 
@@ -124,7 +157,7 @@ var o = { // Create initial session
 
 		/**
 		* Output a single document to STDOUT, following standard JSON encoding
-		* @param {Object} [doc] The document to output
+		* @param {Object} doc The document to output
 		* @returns {Promise} A promise which will resolve when the document has been sent to STDOUT
 		*/
 		doc: doc =>
@@ -132,6 +165,16 @@ var o = { // Create initial session
 				(o.output._docCount++ > 0 ? ',' : '') // Prefix with comma?
 				+ o.output.json(doc)
 			),
+
+
+		/**
+		* Output an entire collection as a series of docs
+		* This really just calls o.output.doc() in series on every document
+		* @param {array} docs
+		*/
+		collection: docs =>
+			o.utilities.promiseAllSeries(docs.map(doc => ()=> o.output.doc(doc))),
+
 
 		/**
 		* Open the connection to STDOUT
@@ -193,12 +236,39 @@ var o = { // Create initial session
 		_startedCollection: false,
 		_docCount: 0,
 	},
+
+
+	/**
+	* Various utlity functions
+	* @example Evaluate a series of promises with a delay, one at a time, in order (note that the map returns a promise factory, otherwise the promise would execute immediately)
+	*/
+	utilities: {
+		/**
+		* Execute promises in series
+		* Promise.allSeries(
+		*   [500, 400, 300, 200, 100, 0, 100, 200, 300, 400, 500].map((delay, index) => ()=> new Promise(resolve => {
+		*     setTimeout(()=> { console.log('EVAL', index, delay); resolve(); }, delay);
+		*   }))
+		* )
+		* @var {Object}
+		* @url https://github.com/MomsFriendlyDevCo/Nodash
+		*/
+		promiseAllSeries: promises =>
+			promises.reduce((chain, promise) =>
+				chain.then(()=>
+					Promise.resolve(
+						typeof promise == 'function' ? promise() : promise
+					)
+				)
+				, Promise.resolve()
+			),
+	},
 };
 
 Promise.resolve()
 	// Read in config file (if any) {{{
 	.then(()=> process.env.HOME &&
-		fs.readFile(fspath.join(process.env.HOME, '.o'))
+		fs.promises.readFile(fspath.join(process.env.HOME, '.o'))
 			.then(contents => ini.decode(contents))
 			.then(contents => _.merge(o.settings, contents))
 			.catch(()=> {}) // Ignore non-existant config files
