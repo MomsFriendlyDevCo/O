@@ -18,13 +18,14 @@ module.exports = o => {
 			includeFields.push(field);
 		}
 	})
+	if (includeFields.length && excludeFields.length) throw new Error('Specifying both include and exclusion fields makes no sense');
 
 	o.on('doc', doc =>
 		o.output.doc(
 			_(doc)
-				.pick(includeFields)
-				.omit(excludeFields)
-				.thru(d => o.cli.collection && doc._collection ? _.set(d, '_collection', doc._collection) : d)
+				.thru(v => includeFields.length ? _.pick(v, includeFields) : v)
+				.thru(v => excludeFields.length ? _.omit(v, excludeFields) : v)
+				.thru(d => o.cli.collection && doc._collection ? _.set(d, '_collection', doc._collection) : _.omit(d, '_collection'))
 				.value()
 		)
 	);
