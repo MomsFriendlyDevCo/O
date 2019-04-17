@@ -6,6 +6,8 @@ module.exports = o => {
 		.description('Extend a sub-object field by its ID')
 		.option('--collection <name>', 'Use the specified collection name instead of the document._collection meta property')
 		.usage('<paths[=mapping]...>')
+		.note('Paths can be specified in dotted notation format')
+		.note('Adding a mapping will populate the full object at the specified path instead of overwriting the original')
 		.parse();
 
 	var paths = siftShorthand.values(o.cli.args);

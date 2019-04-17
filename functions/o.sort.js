@@ -4,7 +4,8 @@ module.exports = o => {
 	o.cli
 		.description('Sort a collection of documents by given fields (this function BLOCKS)')
 		.usage('<fields...>')
-		.option('-m, --memory', 'Use in-memory caching instead of disk, this is extremely RAM intensive and large collections could run out of memory')
+		.option('-m, --memory', 'use in-memory caching instead of disk')
+		.note('Memory caching is extremely RAM intensive and large collections cause out-of-memory errors')
 		.parse();
 
 	var fields = siftShorthand.values(o.cli.args);

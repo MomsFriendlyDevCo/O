@@ -1,9 +1,10 @@
 var _ = require('lodash');
 module.exports = o => {
 	o.cli
-		.description('Select a series of fields from an input collection')
-		.usage('<field...>')
-		.option('--no-collection', 'Also filter out the `_collection` meta key, which marks the source of the record when using a subsequent `o save` function')
+		.description('Set fields within a collection of documents')
+		.usage('<field=value...>')
+		.note('Fields can be specified in dotted notation format')
+		.note('Fields containing any ES6 tags will be evaluated with the current document context e.g. `bar=${foo}` copies the value of `foo` into `bar`')
 		.parse();
 
 	if (!o.cli.args.length) throw new Error('Fields and values must be specified');

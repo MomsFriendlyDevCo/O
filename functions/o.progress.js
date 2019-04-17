@@ -3,7 +3,7 @@ var timestring = require('timestring');
 module.exports = o => {
 	o.cli
 		.description('Reduce the throughput of documents to the specified number of items per time period')
-		.usage('--refresh <timestring> | --per <number>')
+		.usage('[--refresh <timestring> | --per <number>]')
 		.option('--refresh <timestring>', 'How often to output a progress message (default is 1s)')
 		.option('--per <timestring>', 'How many documents to update by')
 		.option('--prefix <string>', 'What prefix to use when outputting (default is "Processed")')

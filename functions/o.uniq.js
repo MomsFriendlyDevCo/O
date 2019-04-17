@@ -4,8 +4,10 @@ module.exports = o => {
 	o.cli
 		.description('Return a uniq set of document (by entire object or by one or more fields)')
 		.usage('[fields...]')
-		.option('-m, --memory', 'Use in-memory caching instead of disk, this is extremely RAM intensive and large collections could run out of memory')
-		// .note('If no fields are specified the top level element is used for comparison')
+		.option('-m, --memory', 'use in-memory caching instead of disk')
+		.note('Memory caching is extremely RAM intensive and large collections cause out-of-memory errors')
+		.note('If no fields are specified the top level element is used for comparison')
+		.note('Omit the field if the input is just an array of strings or numbers to compare those directly')
 		.parse();
 
 	var fields = _(siftShorthand.values(o.cli.args)).pickBy(v => v).map((v, k) => k).value();

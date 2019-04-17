@@ -4,6 +4,7 @@ module.exports = o => {
 		.description('Select a series of fields from an input collection')
 		.usage('<field...>')
 		.option('--no-collection', 'Also filter out the `_collection` meta key, which marks the source of the record when using a subsequent `o save` function')
+		.note('Fields can be prefixed with "!" to omit instead of include')
 		.parse();
 
 	if (!o.cli.args.length) throw new Error('At least one field must be specified to select');
