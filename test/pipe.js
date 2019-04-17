@@ -103,4 +103,13 @@ describe('Pipelines', function() {
 			})
 	)
 
+	it('o find users | o populate company | o sort --memory company.name | o uniq --memory', ()=>
+		exec(`o find users | o populate company | o sort --memory company.name | o pluck company.name | o uniq --memory`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(2);
+				expect(res).to.be.deep.equal(['Acme Inc', 'Aperture Science']);
+			})
+	)
+
 });

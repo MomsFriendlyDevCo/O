@@ -57,11 +57,10 @@ var setup = module.exports = {
 		exec.defaults.alias = {o: fspath.resolve(__dirname, '..', 'o.js')};
 
 		exec.defaults.env = {
-			O_PROFILE: JSON.stringify({
-				uri: mongoURI,
-				pretty: true,
-				schemas: `${__dirname}/models/*.js`,
-			}),
+			O_PROFILE: ''
+				+ `uri=${mongoURI},`
+				+ 'pretty=true,'
+				+ `schemas=${__dirname}/models/*.js`,
 		};
 	},
 	// }}}
