@@ -35,7 +35,6 @@ var o = { // Create initial session
 		uri: undefined, // MongoDB URI to connect to
 		connectionOptions: {}, // MongoDB extra connection details
 		pretty: false, // Pretty print output?
-		hanson: true, // Parse JSON via hanSON first
 		schemas: [], // Include these globs (globby compatible string / array) before running
 	},
 
@@ -71,17 +70,34 @@ var o = { // Create initial session
 					if (!o.profile.uri) throw new Error('No database URI specified');
 				})
 				.then(()=> promisify(monoxide.use)(['promises', 'iterators']))
-				.then(()=> o.log(1, 'Connecting to', o.output.obscure(o.profile.uri)))
+				.then(()=> o.log(2, 'Connecting to', o.output.obscure(o.profile.uri)))
 				.then(()=> monoxide.connect(o.profile.uri, o.profile.connectionOptions))
-				.then(()=> o.log(1, 'Connected'))
+				.then(()=> o.log(2, 'Connected'))
 				// }}}
 				// Include all schema files {{{
 				.then(()=> glob(o.profile.schemas))
 				.then(schemaPaths => schemaPaths.forEach(path => {
-					o.log(2, `Including schema file "${path}"`);
+					o.log(3, `Including schema file "${path}"`);
 					require(path);
 				}))
-				.then(()=> o.db.models = monoxide.models),
+				.then(()=> o.db.models = monoxide.models)
+				.then(()=> { // Load shema-less collections as raw models
+					if (o.settings.skipRawCollections) return;
+					var knownModels = new Set(_.map(o.db.models, m => m.$mongoModel.name));
+
+					return monoxide.connection.db.collections()
+						.then(collections => collections.filter(c => !knownModels.has(c.s.name)))
+						.then(collections =>
+							collections.map(c => {
+								o.db.models[c.s.name] = {
+									$rawCollection: true,
+									$mongoModel: monoxide.connection.collection(c.s.name),
+								};
+								return c.s.name;
+							})
+						)
+						.then(collectionNames => o.log(3, 'Loaded raw collections:', collectionNames.join(', ')))
+				}),
 				// }}}
 
 		models: {}, // Eventual pointer to the available database models when the connection has finished
@@ -343,7 +359,7 @@ Promise.resolve()
 					o.functions[func].path, // Path to script (not this parent script)
 					...process.argv.slice(3), // Rest of command line after the shorthand command name
 				]);
-				o.verbose = o.cli.verbose;
+				o.verbose = o.cli.verbose || 0;
 			};
 
 			eventer.extend(o); // Glue eventer onto session object
