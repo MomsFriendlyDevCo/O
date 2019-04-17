@@ -101,15 +101,22 @@ var setup = module.exports = {
 	// validateUser {{{
 	validateUser: user => {
 		expect(user).to.have.property('_id');
+		expect(user._id).to.be.a('string');
 		expect(user).to.have.property('_collection');
+		expect(user._collection).to.be.a('string');
 		expect(user).to.have.property('name');
+		expect(user.name).to.be.a('string');
 		expect(user).to.have.property('status');
+		expect(user.status).to.be.a('string');
 		expect(user).to.have.property('company');
 		expect(user).to.have.property('role');
+		expect(user.role).to.be.a('string');
 		expect(user).to.have.property('favourite');
 		expect(user.favourite).to.be.an('object');
 		expect(user).to.have.nested.property('favourite.color');
+		expect(user.favourite.color).to.be.a('string');
 		expect(user).to.have.nested.property('favourite.animal');
+		expect(user.favourite.animal).to.be.a('string');
 		expect(user).to.have.property('_password');
 	},
 	// }}}
