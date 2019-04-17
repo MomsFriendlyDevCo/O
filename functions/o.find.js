@@ -68,17 +68,19 @@ module.exports = o => {
 		})
 		// }}}
 		// Iterate over cursor until exhausted {{{
-		.then(()=> o.cli.one ? o.output.start() : o.output.startCollection())
+		.then(()=> o.cli.one || o.cli.count ? o.output.start() : o.output.startCollection())
 		.then(()=> new Promise((resolve, reject) => {
 			if (o.cli.dryRun) resolve(); // Don't actually run anything
 			var iterateCursor = ()=> {
 				o.aggregation.cursor.next()
 					.then(doc => {
 						if (doc) { // Fetched a document
-							return o.output.doc({
-								...doc,
-								_collection: o.aggregation.model,
-							});
+							if (o.cli.count) {
+								return o.output.doc(doc.count);
+							} else {
+								doc._collection = o.aggregation.model;
+								return o.output.doc(doc);
+							}
 						} else { // Exhausted cursor
 							resolve();
 						}
@@ -88,6 +90,6 @@ module.exports = o => {
 			};
 			iterateCursor();
 		}))
-		.then(()=> o.cli.one ? o.output.end() : o.output.endCollection())
+		.then(()=> o.cli.one || o.cli.count ? o.output.end() : o.output.endCollection())
 		// }}}
 };
