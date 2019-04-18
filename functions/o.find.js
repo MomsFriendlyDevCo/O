@@ -17,6 +17,7 @@ module.exports = o => {
 		.option('-p, --pluck [field]', 'Return only an array of the single matching field')
 		.option('-i, --ids', 'Shorthand for --pluck=_id')
 		.option('--explain', 'Show the aggregation query that is being run (use --dry-run to not actually do anything)')
+		.option('--count-exact', 'Insist on the exact count of documents rather than the much quicker best estimate')
 		.parse();
 
 	return Promise.resolve()
@@ -49,7 +50,7 @@ module.exports = o => {
 			if (!_.isEmpty(o.cli.sort)) agg.push({$sort: o.cli.sort});
 			if (o.cli.skip) agg.push({$skip: parseInt(o.cli.skip)});
 			if (o.cli.limit) agg.push({$limit: parseInt(o.cli.limit)});
-			if (o.cli.count) agg.push({$count: 'count'});
+			if (o.cli.count) agg.push(o.cli.countExact ? {$count: 'count'} : {$collStats: {count: {}}});
 			o.aggregation.query = agg;
 		})
 		// }}}
