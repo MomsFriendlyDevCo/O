@@ -12,6 +12,7 @@ var glob = require('globby');
 var hanson = require('hanson');
 var ini = require('ini');
 var monoxide = require('monoxide');
+var os = require('os');
 var promisify = require('util').promisify;
 var siftShorthand = require('sift-shorthand');
 var temp = require('temp');
@@ -112,11 +113,8 @@ var o = { // Create initial session
 				.then(()=> o.log(2, 'Connected'))
 				// }}}
 				// Include all schema files {{{
-				.then(()=> glob(o.profile.schemas))
-				.then(schemaPaths => schemaPaths.forEach(path => {
-					o.log(3, `Including schema file "${path}"`);
-					require(path);
-				}))
+				.then(()=> glob(_.castArray(o.profile.schemas).map(p => o.utilities.resolvePath(p))))
+				.then(paths => o.input.include(paths))
 				.then(()=> o.db.models = monoxide.models)
 				.then(()=> { // Load shema-less collections as raw models
 					if (o.settings.skipRawCollections) return;
@@ -194,6 +192,19 @@ var o = { // Create initial session
 				.then(()=> o.emit('collection', collection))
 		},
 
+
+		/**
+		* Includes external JS files in series
+		* If a file returns a function it is executed, promises are resolved before continuing in series
+		* @returns {Promise} A promise when all files are included
+		*/
+		include: paths =>
+			o.utilities.promiseAllSeries(paths.map(path => ()=> {
+				o.log(3, `Including schema file "${path}"`);
+
+				var result = require(path);
+				return Promise.resolve(_.isFunction(result) ? result() : result);
+			})),
 	},
 
 
@@ -326,6 +337,16 @@ var o = { // Create initial session
 				)
 				, Promise.resolve()
 			),
+
+
+		/**
+		* Attempt to resolve a path to the full path honoring home shorthand
+		*/
+		resolvePath: path =>
+			path
+				.split(fspath.sep)
+				.map(p => p == '~' ? os.homedir() : p) // Resolve '~'
+				.join(fspath.sep),
 	},
 };
 eventer.extend(o); // Glue eventer onto session object
