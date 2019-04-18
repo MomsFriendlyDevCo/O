@@ -55,6 +55,42 @@ var o = { // Create initial session
 
 
 	/**
+	* Redirect one function into another
+	* @param {string} func The function name to redirect to
+	* @param {array} args Array of CLI arguments to pass
+	*/
+	redirect: (func, args) => {
+		if (!o.functions[func]) throw new Error(`Unable to redirect to non-existant function "${func}"`);
+
+		o.log(4, 'Running sub-command', func);
+
+		o.cli = new commander.Command() // Setup a stub Commander Command
+			.version(require('./package.json').version)
+			.name(`o ${func}`)
+			.usage('[arguments]')
+			.option('-v, --verbose', 'Be verbose - use multiple to increase verbosity', (v, total) => total + 1, 0)
+
+		// Sub-class the .parse function to always work with the rewritten argument array + inherit common parameters like verbose
+		var originalParse = o.cli.parse;
+		o.cli.parse = ()=> {
+			originalParse.call(o.cli, [
+				process.argv[0], // Original intepreter (usually node)
+				o.functions[func].path, // Path to script (not this parent script)
+				...args, // Rest of command line after the shorthand command name
+			]);
+			o.verbose = o.cli.verbose || 0; // Inherit verbosity from command line
+		};
+
+		return Promise.resolve(require(o.functions[func].path))
+			.then(module => {
+				if (!_.isFunction(module)) throw new Error(`O module "${o.functions[func].path}" did not return a promise!`);
+				return Promise.resolve(module.call(o, o));
+			})
+			.then(()=> o.emit('close'))
+	},
+
+
+	/**
 	* Various database handling functionality
 	*/
 	db: {
@@ -291,6 +327,8 @@ var o = { // Create initial session
 			),
 	},
 };
+eventer.extend(o); // Glue eventer onto session object
+
 
 Promise.resolve()
 	// Read in config file (if any) {{{
@@ -344,32 +382,7 @@ Promise.resolve()
 				})
 				.parse(process.argv)
 		} else if (o.functions[func]) { // Pass control to sub-command
-			o.log(4, 'Running sub-command', func);
-			o.cli = new commander.Command() // Setup a stub Commander Command
-				.version(require('./package.json').version)
-				.name(`o ${func}`)
-				.usage('[arguments]')
-				.option('-v, --verbose', 'Be verbose - use multiple to increase verbosity', (v, total) => total + 1, 0)
-
-			// Sub-class the .parse function to always work with the rewritten argument array + inherit common parameters like verbose
-			var originalParse = o.cli.parse;
-			o.cli.parse = ()=> {
-				originalParse.call(o.cli, [
-					process.argv[0], // Original intepreter (usually node)
-					o.functions[func].path, // Path to script (not this parent script)
-					...process.argv.slice(3), // Rest of command line after the shorthand command name
-				]);
-				o.verbose = o.cli.verbose || 0;
-			};
-
-			eventer.extend(o); // Glue eventer onto session object
-
-			return Promise.resolve(require(o.functions[func].path))
-				.then(module => {
-					if (!_.isFunction(module)) throw new Error(`O module "${o.functions[func].path}" does not return a promise!`);
-					return Promise.resolve(module.call(o, o));
-				})
-				.then(()=> o.emit('close'))
+			o.redirect(func, process.argv.slice(3));
 		} else {
 			throw new Error(`Unknown O function: ${func}`);
 		}

@@ -27,6 +27,22 @@ describe('Pipelines', function() {
 			})
 	)
 
+	it('o find users | o limit 3 | o count', ()=>
+		exec(`o find users | o limit 3 | o count`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('number');
+				expect(res).to.be.equal(3);
+			})
+	)
+
+	it('o count users', ()=>
+		exec(`o count users`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('number');
+				expect(res).to.be.equal(7);
+			})
+	)
+
 	it('o find users | o limit 3 | o select _id', ()=>
 		exec(`o find users | o limit 2 | o select _id`, {json: true})
 			.then(res => {
