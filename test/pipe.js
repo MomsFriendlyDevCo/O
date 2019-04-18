@@ -61,6 +61,14 @@ describe('Pipelines', function() {
 			})
 	)
 
+	it('o find users -vv | o pluck favourite.color | o uniq --memory | o sort --memory', ()=>
+		exec('o find users -vv | o pluck favourite.color | o uniq --memory | o sort --memory', {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.be.deep.equal(['blue', 'red', 'yellow']);
+			})
+	)
+
 	it('o find users | o throttle --delay=1s | o progress --per=1 | o pluck _id', ()=> {
 		var startTime = Date.now();
 		return exec(`o find users status=active | o throttle --delay=1s | o progress --per=1 | o pluck _id`, {json: true})
