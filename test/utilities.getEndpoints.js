@@ -6,13 +6,13 @@ describe('utilities.getEndpoints()', ()=> {
 		_id: 123,
 		name: 'Joe Random',
 		favourite: {
-			color: 'Blue',
-			animal: 'Cat',
+			color: 'blue',
+			animal: 'cat',
 		},
 		friends: [
-			{name: 'Bob Smith', pets: ['Dog', 'Cat', 'Goldfish']},
-			{name: 'Jane Quark', pets: ['Cat', 'Goldfish']},
-			{name: 'Eric Electron', pets: ['Goldfish']},
+			{name: 'Bob Smith', pets: ['dog', 'cat', 'goldfish']},
+			{name: 'Jane Quark', pets: ['cat', 'goldfish']},
+			{name: 'Eric Electron', pets: ['goldfish']},
 			{name: 'Sandy Singularity'},
 		],
 	};
@@ -20,12 +20,12 @@ describe('utilities.getEndpoints()', ()=> {
 	it('should extract simple scalars', ()=> {
 		expect(o.utilities.getEndpoints(doc, '_id')).to.deep.equal(123);
 		expect(o.utilities.getEndpoints(doc, 'name')).to.deep.equal('Joe Random');
-		expect(o.utilities.getEndpoints(doc, 'favourite')).to.deep.equal({color: 'Blue', animal: 'Cat'});
-		expect(o.utilities.getEndpoints(doc, 'favourite.color')).to.deep.equal('Blue');
-		expect(o.utilities.getEndpoints(doc, ['favourite', 'color'])).to.deep.equal('Blue');
+		expect(o.utilities.getEndpoints(doc, 'favourite')).to.deep.equal({color: 'blue', animal: 'cat'});
+		expect(o.utilities.getEndpoints(doc, 'favourite.color')).to.deep.equal('blue');
+		expect(o.utilities.getEndpoints(doc, ['favourite', 'color'])).to.deep.equal('blue');
 	})
 
-	it.only('should extract branching structures', ()=> {
+	it('should extract branching structures', ()=> {
 		var res = o.utilities.getEndpoints(doc, 'friends');
 		expect(res).to.be.an('array');
 		expect(res).to.have.length(4);

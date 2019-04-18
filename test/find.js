@@ -46,6 +46,19 @@ describe('`o find` CLI', function() {
 			})
 	)
 
+	it('should find only users with deeply nested endpoint fields', ()=>
+		exec(['o', 'find', 'users', '--select=_id,name,favourite.color', '-vv'], {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length.above(0);
+				res.forEach(user => {
+					expect(Object.keys(user).sort()).to.be.deep.equal(['_collection', '_id', 'favourite', 'name'])
+					expect(user).to.have.nested.property('favourite.color');
+					expect(Object.keys(user.favourite)).to.be.deep.equal(['color']);
+				});
+			})
+	)
+
 	it('should find only active users', ()=>
 		exec(['o', 'find', 'users', 'status=active', '-vvv'], {json: true})
 			.then(res => {
@@ -99,4 +112,5 @@ describe('`o find` CLI', function() {
 				setup.validateUser(res);
 			})
 	)
+
 });

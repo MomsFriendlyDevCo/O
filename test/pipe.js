@@ -154,4 +154,23 @@ describe('Pipelines', function() {
 			})
 	)
 
+	it.only('should extract all cities companies are based in', ()=>
+		exec('o find companies | o select locations.city', {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				res.forEach(u => {
+					expect(Object.keys(u).sort()).to.deep.equal(['_collection', '_id', 'locations']);
+					expect(Object.keys(u.locations)).to.deep.equal(['city']);
+				});
+			})
+	)
+
+	it('should extract all cities companies are based in', ()=>
+		exec('o find companies | o pluck --flatten locations.city | o sort --memory | o uniq --memory', {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.be.deep.equal(['London', 'New York', 'Sydney']);
+			})
+	)
+
 });

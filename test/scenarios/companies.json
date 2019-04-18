@@ -1,14 +1,25 @@
 [
 	{
 		"_ref": "company.acme",
-		"name": "Acme Inc"
+		"name": "Acme Inc",
+		"locations": [
+			{"country": "UK", "city": "London"},
+			{"country": "US", "city": "New York"},
+			{"country": "AU", "city": "Sydney"}
+		]
 	},
 	{
 		"_ref": "company.aperture",
-		"name": "Aperture Science"
+		"name": "Aperture Science",
+		"locations": [
+			{"country": "US", "city": "New York"}
+		]
 	},
 	{
 		"_ref": "company.empty",
-		"name": "Empty Box Incoporated"
+		"name": "Empty Box Incoporated",
+		"locations": [
+			{"country": "AU", "city": "Sydney"}
+		]
 	}
 ]

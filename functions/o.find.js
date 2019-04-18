@@ -18,6 +18,7 @@ module.exports = o => {
 		.option('-i, --ids', 'Shorthand for --pluck=_id')
 		.option('--explain', 'Show the aggregation query that is being run (use --dry-run to not actually do anything)')
 		.option('--count-exact', 'Insist on the exact count of documents rather than the much quicker best estimate')
+		.note('The select function is passed directly onto the aggregation projection, if you want more complex selection use `o select` or `o pluck`')
 		.parse();
 
 	return Promise.resolve()
