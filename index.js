@@ -208,9 +208,9 @@ var o = {
 		* Output an object similar to JSON.stringify but honoring pretty-print settings
 		*/
 		json: obj =>
-			o.profile.pretty
-				? JSON.stringify(obj, null, '\t')
-				: JSON.stringify(obj),
+			obj === undefined ? 'null'
+			: o.profile.pretty ? JSON.stringify(obj, null, '\t')
+			: JSON.stringify(obj),
 
 
 		/**
@@ -348,6 +348,7 @@ var o = {
 		* @returns {*} Either the single endpoint of the path result or an array of matching endpoints
 		*/
 		getEndpoints: (doc, path) => {
+			var recursed = false; // Encountered an array?
 			var results = [];
 			var segments = _.isString(path) ? path.split('.') : path;
 
@@ -357,6 +358,7 @@ var o = {
 				} else if (segmentIndex == segments.length) { // Last item - return this node
 					results.push(node);
 				} else if (_.isArray(node)) { // Array, iterate down
+					recursed = true;
 					node.forEach(n => examine(n, segmentIndex));
 				} else { // Scalar / object, walk down
 					var nextKey = segments[segmentIndex];
@@ -368,7 +370,7 @@ var o = {
 
 			return (
 				!results.length ? undefined
-				: results.length == 1 ? results[0]
+				: !recursed && results.length == 1 ? results[0]
 				: results
 			)
 		},
