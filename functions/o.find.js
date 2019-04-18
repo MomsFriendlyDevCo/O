@@ -5,7 +5,6 @@ var siftShorthand = require('sift-shorthand');
 module.exports = o => {
 	o.cli
 		.description('Fetch documents from a collection with an optional query')
-		.name('o find')
 		.usage('<collection> [query...]')
 		.option('-1, --one', 'Fetch only the first document as an object (not an array)')
 		.option('-c, --count', 'Count documents rather than return them')
@@ -15,6 +14,8 @@ module.exports = o => {
 		.option('-k, --skip <number>', 'Skip over the first number of documents')
 		.option('-n, --dry-run', 'Dont actually run anything, return an empty array')
 		.option('-d, --delay <timestring>', 'Add a delay to each record retrieval', v => timestring(v, 'ms'), 0)
+		.option('-p, --pluck [field]', 'Return only an array of the single matching field')
+		.option('-i, --ids', 'Shorthand for --pluck=_id')
 		.option('--explain', 'Show the aggregation query that is being run (use --dry-run to not actually do anything)')
 		.parse();
 
@@ -25,6 +26,8 @@ module.exports = o => {
 			if (o.cli.limit && o.cli.one) throw new Error('Specifying --limit and --one makes no sense');
 			if (o.cli.limit && (o.cli.limit < 1 || !isFinite(o.cli.limit))) throw new Error('--limit must be a positive, finite integer');
 			if (o.cli.skip && (o.cli.skip < 0 || !isFinite(o.cli.skip))) throw new Error('--skip must be a positive (or zero), finite integer');
+			if (o.cli.ids) o.cli.pluck = '_id';
+			if (/,/.test(o.cli.pluck)) throw new Error('Only one field can be specified in --pluck');
 		})
 		// }}}
 		.then(()=> o.db.connect())
@@ -77,6 +80,8 @@ module.exports = o => {
 						if (doc) { // Fetched a document
 							if (o.cli.count) {
 								return o.output.doc(doc.count);
+							} else if (o.cli.pluck) {
+								return o.output.doc(_.get(doc, o.cli.pluck));
 							} else {
 								doc._collection = o.aggregation.model;
 								return o.output.doc(doc);

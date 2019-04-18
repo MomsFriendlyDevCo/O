@@ -119,8 +119,26 @@ describe('Pipelines', function() {
 			})
 	)
 
+	it('o ids users', ()=>
+		exec('o ids users', {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(7);
+				res.forEach(r => expect(r).to.be.a('string'));
+			})
+	)
+
+	it('o find users | o ids', ()=>
+		exec('o find users | o ids', {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(7);
+				res.forEach(r => expect(r).to.be.a('string'));
+			})
+	)
+
 	it('o find users | o populate company | o sort --memory company.name | o uniq --memory', ()=>
-		exec(`o find users | o populate company | o sort --memory company.name | o pluck company.name | o uniq --memory`, {json: true})
+		exec('o find users | o populate company | o sort --memory company.name | o pluck company.name | o uniq --memory', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(2);

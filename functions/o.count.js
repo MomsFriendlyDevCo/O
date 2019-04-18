@@ -2,11 +2,11 @@ var _ = require('lodash');
 module.exports = o => {
 	o.cli
 		.description('Count the number of documents in a collection (or run a query and count the results)')
-		.name('o find')
 		.usage('[collection] [query...]')
+		.note('This function uses the same query system as `o find`)
 		.parse();
 
-	if (o.cli.args.length) return o.redirect('find', ['--count', ...o.cli.args]); // Trying to run a query - redirect to `o find`
+	if (o.cli.args.length) return o.run('find', '--count', ...o.cli.args); // Trying to run a query - redirect to `o find`
 
 	// Everything else - assume we're just counting results
 

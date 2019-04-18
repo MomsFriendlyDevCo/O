@@ -55,12 +55,13 @@ var o = { // Create initial session
 
 
 	/**
-	* Redirect one function into another
-	* @param {string} func The function name to redirect to
-	* @param {array} args Array of CLI arguments to pass
+	* Run an O function
+	* This can also be used within a function to redirect to another
+	* @param {string} func The function name to run
+	* @param {array} [args...] CLI arguments to pass
 	*/
-	redirect: (func, args) => {
-		if (!o.functions[func]) throw new Error(`Unable to redirect to non-existant function "${func}"`);
+	run: (func, ...args) => {
+		if (!o.functions[func]) throw new Error(`Unable to run non-existant function "${func}"`);
 
 		o.log(4, 'Running sub-command', func);
 
@@ -364,7 +365,7 @@ Promise.resolve()
 	.then(()=> {
 		var func = process.argv.slice(2).find(a => !a.startsWith('-')); // Find first probable command
 
-		if (!func) { // No commands given - display universal help
+		if (process.argv.length <= 2 || !func) { // No commands given - display universal help
 			o.cli = commander
 				.version(require('./package.json').version)
 				.name('o')
@@ -381,8 +382,10 @@ Promise.resolve()
 					console.log('');
 				})
 				.parse(process.argv)
+
+			if (process.argv.length <= 2) o.cli.outputHelp();
 		} else if (o.functions[func]) { // Pass control to sub-command
-			o.redirect(func, process.argv.slice(3));
+			o.run(func, ...process.argv.slice(3));
 		} else {
 			throw new Error(`Unknown O function: ${func}`);
 		}

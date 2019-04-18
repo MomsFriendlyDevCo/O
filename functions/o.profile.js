@@ -3,7 +3,6 @@ var _ = require('lodash');
 module.exports = o => {
 	o.cli
 		.description('Output the currently active profile (or show other profiles)')
-		.name('o profile')
 		.usage('[profile]')
 		.option('-l, --list', 'List all known profiles')
 		.option('--no-obscure', 'Disable obscuring of things that look like passwords')
