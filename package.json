@@ -40,7 +40,7 @@
     "monoxide": "0.0.124",
     "plur": "^3.1.1",
     "sift": "^7.0.1",
-    "sift-shorthand": "0.0.2",
+    "sift-shorthand": "0.0.4",
     "temp": "^0.9.0",
     "timestring": "^5.0.1"
   }

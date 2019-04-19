@@ -75,10 +75,6 @@
 		"_password": "ao",
 		"_ref": "users.dick",
 		"company": "company.acme",
-		"favourite": {
-			"animal": "dog",
-			"color": "red"
-		},
 		"name": "Adam Admin",
 		"role": "admin",
 		"status": "active"
