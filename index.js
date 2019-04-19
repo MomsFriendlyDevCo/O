@@ -236,11 +236,22 @@ var o = {
 		/**
 		* Output an entire collection as a series of docs
 		* This really just calls o.output.doc() in series on every document
-		* @param {array} docs
+		* @param {array <Object>} docs
+		* @returns {Promise} A promise for when the output finishes
 		*/
 		collection: docs =>
 			o.utilities.promiseAllSeries(docs.map(doc => ()=> o.output.doc(doc))),
 
+
+		/**
+		* Output any artibrary type using logic to try to work out what it is
+		* @param {*} input The input that needs to be output
+		* @returns {Promise} A promise for when the output finishes
+		*/
+		any: input =>
+			_.isArray(input) ? o.output.collection(input)
+			: _.isObject(input) ? o.output.doc(input)
+			: o.output.write(o.output.json(input)),
 
 		/**
 		* Open the connection to STDOUT
