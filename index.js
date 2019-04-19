@@ -147,7 +147,7 @@ var o = {
 		* @returns {Promise} A promise which resolves when the collection stream has completed
 		*/
 		requestCollectionStream: (blocking = false) => {
-			if (process.stdin.isTTY) return reject('Input stream is a TTY - should be a stream of document data');
+			if (process.stdin.isTTY) return new Error('Input stream is a TTY - should be a stream of document data');
 			var collection = []; // Collection cache
 
 			return Promise.resolve()
@@ -249,7 +249,7 @@ var o = {
 		* @returns {Promise} A promise for when the output finishes
 		*/
 		any: input =>
-			_.isArray(input) ? o.output.collection(input)
+			_.isArray(input) ? o.output.startCollection().then(()=> o.output.collection(input)).then(()=> o.output.endCollection())
 			: _.isObject(input) ? o.output.doc(input)
 			: o.output.write(o.output.json(input)),
 

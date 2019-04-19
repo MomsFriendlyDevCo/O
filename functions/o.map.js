@@ -58,13 +58,13 @@ module.exports = o => {
 				.then(doc => o.output.doc(doc))
 		);
 	} else { // Entire collection slurp mode
-		o.on('collection', collection => {
+		o.on('collection', collection =>
 			o.utilities.promiseAllSeries(funcs.map(func => ()=>
 				func(collection)
 					.then(res => collection = res)
 			))
 				.then(doc => o.output.any(collection))
-		})
+		)
 	}
 
 	return Promise.resolve()
