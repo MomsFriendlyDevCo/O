@@ -46,12 +46,32 @@ module.exports = o => {
 			var query = siftShorthand(o.cli.args);
 			o.log(3, 'Use query', query);
 
+			// Query / $match
 			if (!_.isEmpty(query)) agg.push({$match: query});
+
+			// Select / $project
 			if (!_.isEmpty(o.cli.select)) agg.push({$project: o.cli.select.reduce((total, v) => Object.assign(total, {[v]: 1}), {})});
-			if (!_.isEmpty(o.cli.sort)) agg.push({$sort: o.cli.sort});
+
+			// Sort / $sort
+			if (!_.isEmpty(o.cli.sort)) agg.push({
+				$sort: _(o.cli.sort)
+					.split(/\s*,\s*/)
+					.mapKeys(v => v.replace(/^-/, ''))
+					.mapValues(v => v.startsWith('-') ? -1 : 1)
+					.value()
+			});
+
+			// Skip / $skip
 			if (o.cli.skip) agg.push({$skip: parseInt(o.cli.skip)});
+
+			// Limit / $limit
 			if (o.cli.limit) agg.push({$limit: parseInt(o.cli.limit)});
+
+			// Count
 			if (o.cli.count) agg.push(o.cli.countExact ? {$count: 'count'} : {$collStats: {count: {}}});
+
+			o.log(3, 'Use aggregation', agg);
+
 			o.aggregation.query = agg;
 		})
 		// }}}
