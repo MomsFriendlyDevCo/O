@@ -50,7 +50,9 @@ module.exports = o => {
 			if (!_.isEmpty(query)) agg.push({$match: query});
 
 			// Select / $project
-			if (!_.isEmpty(o.cli.select)) agg.push({$project: o.cli.select.reduce((total, v) => Object.assign(total, {[v]: 1}), {})});
+			if (!_.isEmpty(o.cli.select)) agg.push({
+				$project: o.cli.select.reduce((total, v) => Object.assign(total, {[v]: 1}), {})}
+			);
 
 			// Sort / $sort
 			if (!_.isEmpty(o.cli.sort)) agg.push({
@@ -68,7 +70,7 @@ module.exports = o => {
 			if (o.cli.limit) agg.push({$limit: parseInt(o.cli.limit)});
 
 			// Count
-			if (o.cli.count) agg.push(o.cli.countExact ? {$count: 'count'} : {$collStats: {count: {}}});
+			if (o.cli.count) agg.push(o.cli.countExact ? {$count: 'count'} : { $collStats: {count: {}} });
 
 			o.log(3, 'Use aggregation', agg);
 
