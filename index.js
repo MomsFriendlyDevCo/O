@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var bfj = require('bfj');
 var bfjc = require('bfj-collections');
+var colors = require('chalk');
 var commander = require('commander');
 var commanderExtras = require('commander-extras');
 var eventer = require('@momsfriendlydevco/eventer');
@@ -11,6 +12,7 @@ var monoxide = require('monoxide');
 var os = require('os');
 var promisify = require('util').promisify;
 var temp = require('temp');
+var util = require('util');
 
 var o = {
 	verbose: 0,
@@ -51,7 +53,16 @@ var o = {
 			var verbosity = msg.shift();
 			if (o.verbose < verbosity) return; // Not in a verbose-enough mode to output
 		}
-		console.warn.apply(o, msg);
+
+		process.stderr.write(
+			msg.map(i =>
+				_.isObject(i) ? util.inspect(i, {depth: 3, colors: colors.enabled})
+				: _.isNumber(i) || _.isBoolean(i) ? colors.cyan(i)
+				: i.toString ? i.toString()
+				: colors.bold.red('UNPRINTABLE')
+			).join(' ') + '\n',
+			'utf-8'
+		);
 	},
 
 

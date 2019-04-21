@@ -11,7 +11,7 @@ module.exports = o => {
 		.parse();
 
 	var fields = siftShorthand.values(o.cli.args, {merge: _.merge}); // Flatten dotted notation
-	if (o.verbose) o.log(1, 'Sorting by ', _.size(fields) ? _.map(fields, (v, k) => (v ? '+' : '-') + k).join(', ') : 'entire document');
+	if (o.verbose) o.log(1, 'Sorting by', _.size(fields) ? _.map(fields, (v, k) => (v ? '+' : '-') + k).join(', ') : 'entire document');
 
 	if (o.cli.memory) { // Use memory method
 		o.on('collection', docs =>
