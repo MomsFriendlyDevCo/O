@@ -71,7 +71,7 @@ module.exports = o => {
 			if (o.cli.limit) agg.push({$limit: parseInt(o.cli.limit)});
 
 			// Count
-			if (o.cli.count) agg.push(o.cli.countExact ? {$count: 'count'} : { $collStats: {count: {}} });
+			if (o.cli.count) agg.push(o.cli.countExact || !_.isEmpty(query) ? {$count: 'count'} : { $collStats: {count: {}} });
 
 			o.log(3, 'Use aggregation', agg);
 
