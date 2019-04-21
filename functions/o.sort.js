@@ -10,14 +10,14 @@ module.exports = o => {
 		.note('Omit the field if the input is just an array of strings or numbers to compare those directly')
 		.parse();
 
-	var fields = siftShorthand.values(o.cli.args);
-	if (o.verbose) o.log(1, 'Sorting by', fields.length ? _.map(fields, (v, k) => (v ? '+' : '-') + k).join(', ') : 'entire document');
+	var fields = siftShorthand.values(o.cli.args, {merge: _.merge}); // Flatten dotted notation
+	if (o.verbose) o.log(1, 'Sorting by ', _.size(fields) ? _.map(fields, (v, k) => (v ? '+' : '-') + k).join(', ') : 'entire document');
 
 	if (o.cli.memory) { // Use memory method
 		o.on('collection', docs =>
 			o.output.collection(
-				o.cli.fields
-					? _.orderBy(docs, ..._.unzip(_.map(fields, (v, k) => [k, v ? 'asc' : 'desc'])))
+				_.size(fields)
+					? _.orderBy(docs, ..._.unzip(_.map(fields, (v, k) => [i => _.get(i, k), v ? 'asc' : 'desc'])))
 					: _.sortBy(docs)
 			)
 		);

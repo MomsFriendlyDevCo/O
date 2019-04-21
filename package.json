@@ -30,6 +30,7 @@
     "@momsfriendlydevco/eventer": "^1.1.0",
     "bfj": "^6.1.1",
     "bfj-collections": "^1.0.3",
+    "chalk": "^2.4.2",
     "commander": "^2.20.0",
     "commander-extras": "^1.0.1",
     "description": "0.0.4",
@@ -43,7 +44,7 @@
     "namor": "^1.1.2",
     "plur": "^3.1.1",
     "sift": "^7.0.1",
-    "sift-shorthand": "0.0.6",
+    "sift-shorthand": "0.0.7",
     "temp": "^0.9.0",
     "timestring": "^5.0.1"
   }
