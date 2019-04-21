@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "description": "JSON manipulation pipeline",
   "main": "index.js",
+  "bin": {
+    "o": "o.js"
+  },
+  "preferGlobal": true,
   "scripts": {
     "test": "mocha"
   },
@@ -11,14 +15,20 @@
     "url": "git+https://github.com/MomsFriendlyDevCo/O.git"
   },
   "keywords": [
+    "json",
+    "pipeline",
     "monoxide",
     "mongodb",
-    "mongo",
-    "json",
-    "pipeline"
+    "mongo"
   ],
-  "author": "Matt Carter <m@ttcarter.com>",
-  "license": "MIT",
+  "author": [
+    "Matt Carter <m@ttcarter.com>",
+    "Ben Winkley <bawinkley@gmail.com>"
+  ],
+  "license": "GPLv2",
+  "engines": {
+    "node": ">=10.10.0"
+  },
   "devDependencies": {
     "@momsfriendlydevco/exec": "^1.3.0",
     "chai": "^4.2.0",
