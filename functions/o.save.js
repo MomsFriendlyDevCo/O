@@ -21,6 +21,7 @@ module.exports = o => {
 		} else { // Actual save
 
 			o.log(1, `Saving document ${collection} / # ${doc._id}`);
+			if (_.get(o, 'profile.mangle.collections.lowerCase')) collection = collection.toLowerCase();
 			return monoxide.save({
 				$collection: collection,
 				$id: doc._id,

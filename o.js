@@ -71,13 +71,13 @@ Promise.resolve()
 
 			if (process.argv.length <= 2) o.cli.outputHelp();
 		} else if (o.functions[func]) { // Pass control to sub-command
-			o.run(func, ...process.argv.slice(3));
+			return o.run(func, ...process.argv.slice(3));
 		} else {
 			throw new Error(`Unknown O function: ${func}`);
 		}
 	})
 	// }}}
 	.catch(e => {
-		o.log(0, e)
+		o.log(0, e.toString())
 		process.exit(1);
 	})

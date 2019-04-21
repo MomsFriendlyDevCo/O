@@ -29,6 +29,11 @@ var o = {
 		pretty: false, // Pretty print output?
 		schemas: [], // Include these globs (globby compatible string / array) before running
 		savePath: fspath.join(os.tmpdir(), 'o'),
+		mangle: {
+			collections: {
+				lowerCase: true,
+			},
+		},
 	},
 
 

@@ -42,7 +42,7 @@
     "namor": "^1.1.2",
     "plur": "^3.1.1",
     "sift": "^7.0.1",
-    "sift-shorthand": "0.0.4",
+    "sift-shorthand": "0.0.5",
     "temp": "^0.9.0",
     "timestring": "^5.0.1"
   }

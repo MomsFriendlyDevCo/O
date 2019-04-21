@@ -40,6 +40,7 @@ module.exports = o => {
 				model: o.cli.args.shift(),
 				query: undefined, // Calculated in this step
 			};
+			if (_.get(o, 'profile.mangle.collections.lowerCase')) o.aggregation.model = o.aggregation.model.toLowerCase();
 			if (!o.db.models[o.aggregation.model]) throw new Error(`Unknown model "${o.aggregation.model}"`);
 
 			var agg = [];

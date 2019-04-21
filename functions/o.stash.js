@@ -56,6 +56,7 @@ module.exports = o => {
 			})
 			.then(reference => new Promise((resolve, reject) => {
 				var inputStream = fs.createReadStream(fspath.join(o.profile.savePath, reference + '.json'));
+				inputStream.on('error', e => reject(`Invalid stash: "${reference}"`))
 				process.stdout.on('close', resolve);
 				inputStream.pipe(process.stdout);
 			}))
