@@ -1,6 +1,5 @@
 var expect = require('chai').expect;
 var exec = require('@momsfriendlydevco/exec');
-var mlog = require('mocha-logger');
 var setup = require('./setup');
 
 describe('`o select` CLI', function() {

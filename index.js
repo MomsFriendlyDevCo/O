@@ -28,6 +28,7 @@ var o = {
 		connectionOptions: {}, // MongoDB extra connection details
 		pretty: false, // Pretty print output?
 		schemas: [], // Include these globs (globby compatible string / array) before running
+		savePath: fspath.join(os.tmpdir(), 'o'),
 	},
 
 
@@ -144,6 +145,7 @@ var o = {
 		* @emits doc Emitted on each document, to output use `o.output.doc()`. If nothing binds to this event no documents are output (use `collections` or some other binding to handle output elsewhere). Called as (doc)
 		* @emits collection Emitted with the full collection object when we have it. Subscribing to this emitter is not recommended as its very very memory intensive - try to work with the raw file in `collectionFile` instead. Called as (collectionDocs)
 		* @emits collectionFile (only if blocking=true) Emitted when a collection temporary file name has been allocated. Called as (path)
+		* @emits collectionStream Emitted when a valid read stream is found and streaming is about to start
 		* @returns {Promise} A promise which resolves when the collection stream has completed
 		*/
 		requestCollectionStream: (blocking = false) => {
@@ -168,6 +170,7 @@ var o = {
 							})) // Exit with writeStream context
 					}
 				})
+				.then(readStream => o.emit('collectionStream', readStream).then(()=> readStream))
 				.then(readStream => new Promise((resolve, reject) => { // Start streaming from the input stream
 					var docIndex = 0;
 					var streamer = bfjc(readStream, {allowScalars: true, pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
