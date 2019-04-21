@@ -7,7 +7,7 @@ describe('`o select` CLI', function() {
 	this.timeout(10 * 1000);
 	before(setup.initEnvironment);
 
-	it('should use _.keys extract available keys', ()=>
+	it('use _.keys extract available keys', ()=>
 		exec(`o map _.keys <${__dirname}/scenarios/users.json`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
@@ -21,7 +21,7 @@ describe('`o select` CLI', function() {
 	);
 
 	// FIXME: Skipped for now as exec() chokes on brackets
-	it.skip('should use _.get to get a specific key', ()=>
+	it.skip('use _.get to get a specific key', ()=>
 		exec(`o map '_.get(#, "favourite.animal", "none")' <${__dirname}/scenarios/users.json`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
@@ -33,7 +33,7 @@ describe('`o select` CLI', function() {
 			})
 	);
 
-	it('should use _.size to count all documents within a collection', ()=>
+	it('use _.size to count all documents within a collection', ()=>
 		exec(`o map --collection _.size <${__dirname}/scenarios/users.json`, {json: true})
 			.then(res => {
 				expect(res).to.be.a('number');
@@ -41,7 +41,7 @@ describe('`o select` CLI', function() {
 			})
 	)
 
-	it('should use _.size to count all documents within a collection (via thru)', ()=>
+	it('use _.size to count all documents within a collection (via thru)', ()=>
 		exec(`o thru _.size <${__dirname}/scenarios/users.json`, {json: true})
 			.then(res => {
 				expect(res).to.be.a('number');
@@ -50,7 +50,7 @@ describe('`o select` CLI', function() {
 	)
 
 	// FIXME: Skipped for now as exec() chokes on brackets
-	it.skip('should use _.map to transform an entire collection', ()=>
+	it.skip('use _.map to transform an entire collection', ()=>
 		exec(`o map --collection '_.map(#, "favourite.animal")' <${__dirname}/scenarios/users.json`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');

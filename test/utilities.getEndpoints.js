@@ -17,7 +17,7 @@ describe('utilities.getEndpoints()', ()=> {
 		],
 	};
 
-	it('should extract simple scalars', ()=> {
+	it('extract simple scalars', ()=> {
 		expect(o.utilities.getEndpoints(doc, '_id')).to.deep.equal(123);
 		expect(o.utilities.getEndpoints(doc, 'name')).to.deep.equal('Joe Random');
 		expect(o.utilities.getEndpoints(doc, 'favourite')).to.deep.equal({color: 'blue', animal: 'cat'});
@@ -25,7 +25,7 @@ describe('utilities.getEndpoints()', ()=> {
 		expect(o.utilities.getEndpoints(doc, ['favourite', 'color'])).to.deep.equal('blue');
 	})
 
-	it('should extract branching structures', ()=> {
+	it('extract branching structures', ()=> {
 		var res = o.utilities.getEndpoints(doc, 'friends');
 		expect(res).to.be.an('array');
 		expect(res).to.have.length(4);

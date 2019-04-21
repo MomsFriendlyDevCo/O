@@ -8,7 +8,7 @@ describe('`o sort` CLI', function() {
 	this.timeout(10 * 1000);
 	before(setup.initEnvironment);
 
-	it('should sort a JSON file by name', ()=>
+	it('sort a JSON file by name', ()=>
 		exec(`o sort name --memory <${__dirname}/scenarios/users.json`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
@@ -17,7 +17,7 @@ describe('`o sort` CLI', function() {
 			})
 	);
 
-	it('should sort a JSON file by deeply nested key', ()=>
+	it('sort a JSON file by deeply nested key', ()=>
 		exec(`o sort favourite.color -vv --memory <${__dirname}/scenarios/users.json`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');

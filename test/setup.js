@@ -111,13 +111,15 @@ var setup = module.exports = {
 		expect(user).to.have.property('company');
 		expect(user).to.have.property('role');
 		expect(user.role).to.be.a('string');
-		expect(user).to.have.property('favourite');
-		expect(user.favourite).to.be.an('object');
-		expect(user).to.have.nested.property('favourite.color');
-		expect(user.favourite.color).to.be.a('string');
-		expect(user).to.have.nested.property('favourite.animal');
-		expect(user.favourite.animal).to.be.a('string');
-		expect(user).to.have.property('_password');
+
+		if (user.favourite) {
+			expect(user.favourite).to.be.an('object');
+			expect(user).to.have.nested.property('favourite.color');
+			expect(user.favourite.color).to.be.a('string');
+			expect(user).to.have.nested.property('favourite.animal');
+			expect(user.favourite.animal).to.be.a('string');
+			expect(user).to.have.property('_password');
+		}
 	},
 	// }}}
 };

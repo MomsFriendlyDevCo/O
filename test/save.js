@@ -9,7 +9,7 @@ describe('`o save` CLI', function() {
 	beforeEach(setup.init);
 	afterEach(setup.teardown);
 
-	it('o find users status=deleted | o set status=active | o save', ()=>
+	it('find all deleted users and reset their status to active', ()=>
 		exec(`o find users status=deleted | o set status=active | o save`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');

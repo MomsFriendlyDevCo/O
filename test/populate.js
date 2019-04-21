@@ -8,7 +8,7 @@ describe('`o populate` CLI', function() {
 	before(setup.init);
 	after(setup.teardown);
 
-	it('o find users | o populate company', ()=>
+	it('find all users and populate their company information', ()=>
 		exec(`o find users | o populate company`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
@@ -23,7 +23,7 @@ describe('`o populate` CLI', function() {
 	);
 
 
-	it('o find users | o populate company=companyDoc', ()=>
+	it('find all users and populate their company information - saving the company in an alternate path', ()=>
 		exec(`o find users | o populate company=companyDoc`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');

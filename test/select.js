@@ -6,7 +6,7 @@ describe('`o select` CLI', function() {
 	this.timeout(10 * 1000);
 	before(setup.initEnvironment);
 
-	it('should filter simple collection data', ()=>
+	it('filter simple collection data', ()=>
 		exec(['o', 'select', 'name', `<${__dirname}/scenarios/users.json`], {json: true, pipe: true})
 			.then(res => {
 				expect(res).to.be.an('array');

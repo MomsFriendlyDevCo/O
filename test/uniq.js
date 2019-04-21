@@ -7,7 +7,7 @@ describe('`o uniq` CLI', function() {
 	this.timeout(10 * 1000);
 	before(setup.initEnvironment);
 
-	it('o uniq company --memory <USERS', ()=>
+	it('find all used company names (once per name)', ()=>
 		exec(`o uniq company --memory -vv <${__dirname}/scenarios/users.json`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');

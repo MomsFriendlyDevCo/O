@@ -6,7 +6,7 @@ describe('`o stash` CLI', function() {
 	this.timeout(10 * 1000);
 	before(setup.initEnvironment);
 
-	it('should stash output', ()=>
+	it('save stash output', ()=>
 		exec(`o select name <${__dirname}/scenarios/users.json | o stash -v --silent --save test`)
 			.then(res => {
 				expect(res).to.be.an('string');
@@ -14,7 +14,7 @@ describe('`o stash` CLI', function() {
 			})
 	)
 
-	it('should list stashes', ()=>
+	it('list stashes', ()=>
 		exec('o stash -v --list', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
@@ -25,7 +25,7 @@ describe('`o stash` CLI', function() {
 			})
 	)
 
-	it('should restore stashes', ()=>
+	it('restore stashes', ()=>
 		exec('o stash --load test', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
@@ -36,7 +36,7 @@ describe('`o stash` CLI', function() {
 			})
 	)
 
-	it('should delete stashes', ()=>
+	it('delete stashes', ()=>
 		exec('o stash --delete test*')
 			.then(res => {
 				expect(res).to.be.a('string');

@@ -7,7 +7,7 @@ describe('`o throttle` CLI', function() {
 	this.timeout(30 * 1000);
 	before(setup.initEnvironment);
 
-	it('should throttle simple collection data', ()=> {
+	it('throttle simple collection data', ()=> {
 		var startTime = Date.now();
 
 		return exec(['o', 'throttle', '--delay=1s', `<${__dirname}/scenarios/users.json`], {json: true, pipe: true})
