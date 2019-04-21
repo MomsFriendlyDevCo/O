@@ -65,8 +65,9 @@ module.exports = o => {
 							[_(item).keys().first()]: mkOID(_(item).values().first()),
 						};
 					} else if (_.isObject(item) && (item.$in || item.$nin)) { // Array assignment
+						var iterKey = _(item).keys().first();
 						return {
-							[_(item).keys().first()]: item.map(i => mkOID(i))
+							[iterKey]: item[iterKey].map(i => mkOID(i))
 						};
 					}
 				};
