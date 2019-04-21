@@ -33,6 +33,9 @@ var o = {
 			collections: {
 				lowerCase: true,
 			},
+			fields: {
+				objectIds: ['*._id'], // COLLECTION.PATH glob
+			},
 		},
 	},
 

@@ -1,4 +1,6 @@
 var _ = require('lodash');
+var monoxide = require('monoxide');
+var minimatch = require('minimatch');
 var timestring = require('timestring');
 var siftShorthand = require('sift-shorthand');
 
@@ -48,7 +50,39 @@ module.exports = o => {
 			o.log(3, 'Use query', query);
 
 			// Query / $match
-			if (!_.isEmpty(query)) agg.push({$match: query});
+			if (!_.isEmpty(query)) {
+				/**
+				* Map string to OID types - because Mongo is a pain in the arse with comparisons
+				* @param {*} item The item to transform
+				* @returns {ObjectId|Object|array} The valid Mongo comparitor
+				*/
+				var setOID = item => {
+					var mkOID = monoxide.utilities.objectID;
+					if (_.isString(item)) {
+						return mkOID(item);
+					} else if (_.isObject(item) && (item.$eq || item.$ne)) { // Simple object assignment
+						return {
+							[_(item).keys().first()]: mkOID(_(item).values().first()),
+						};
+					} else if (_.isObject(item) && (item.$in || item.$nin)) { // Array assignment
+						return {
+							[_(item).keys().first()]: item.map(i => mkOID(i))
+						};
+					}
+				};
+
+				o.profile.mangle.fields.objectIds.forEach(glob => {
+					var [collection, path] = glob.split('.', 2);
+					if (!minimatch(o.aggregation.model, collection)) return; // Not relevent for this collection
+					if (query[path]) { // Root path or query is already using dotted notatoin
+						query[path] = setOID(query[path]);
+					} else if (_.get(query, path)) {
+						_.set(query, setOID(_.get(query, path)));
+					}
+				});
+
+				agg.push({$match: query});
+			}
 
 			// Select / $project
 			if (!_.isEmpty(o.cli.select)) agg.push({
