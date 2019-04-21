@@ -6,7 +6,12 @@ module.exports = o => {
 		.note('This function uses the same query system as `o find`')
 		.parse();
 
-	if (o.cli.args.length) return o.run('find', '--count', ...o.cli.args); // Trying to run a query - redirect to `o find`
+	if (o.cli.args.length) {
+		o.log(3, 'Acting as full query find');
+		return o.run('find', '--count', ...o.cli.args); // Trying to run a query - redirect to `o find`
+	} else {
+		o.log(3, 'Acting as document counter');
+	}
 
 	// Everything else - assume we're just counting results
 
