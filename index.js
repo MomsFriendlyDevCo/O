@@ -64,7 +64,7 @@ var o = {
 	run: (func, ...args) => {
 		if (!o.functions[func]) throw new Error(`Unable to run non-existant function "${func}"`);
 
-		o.log(4, 'Running sub-command', func);
+		o.log(4, 'Running function', func);
 
 		o.cli = new commander.Command() // Setup a stub Commander Command
 			.version(require('./package.json').version)
@@ -80,7 +80,7 @@ var o = {
 				o.functions[func].path, // Path to script (not this parent script)
 				...args, // Rest of command line after the shorthand command name
 			]);
-			o.verbose = o.cli.verbose || 0; // Inherit verbosity from command line
+			if(!o.verbose) o.verbose = o.cli.verbose || 0; // Inherit verbosity from command line
 		};
 
 		return Promise.resolve(require(o.functions[func].path))
