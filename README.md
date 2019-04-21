@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="https://github.com/MomsFriendlyDevCo/O/raw/master/assets/o.png"/>
+</p>
+
 O
 =
-A shell based series of JSON manipulation pipelines aimed mainly at MongoDB.
+A Command Line JSON manipulation toolbox aimed mainly at MongoDB.
 
 
 **O fundamentals:**
