@@ -1,14 +1,14 @@
 {
-  "name": "@momsfriendlydevco/o-cli",
+  "name": "@momsfriendlydevco/o",
   "version": "0.0.0",
-  "description": "Command Line Interface for Monoxide which exposes a JSON manipulation pipeline",
+  "description": "JSON manipulation pipeline",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MomsFriendlyDevCo/o-cli.git"
+    "url": "git+https://github.com/MomsFriendlyDevCo/O.git"
   },
   "keywords": [
     "monoxide",
