@@ -135,10 +135,7 @@ var o = {
 						.then(collections => collections.filter(c => !knownModels.has(c.s.name)))
 						.then(collections =>
 							collections.map(c => {
-								o.db.models[c.s.name] = {
-									$rawCollection: true,
-									$mongoModel: monoxide.connection.collection(c.s.name),
-								};
+								o.db.models[c.s.name] = new monoxide.monoxideModel(c.s.name, {});
 								return c.s.name;
 							})
 						)
