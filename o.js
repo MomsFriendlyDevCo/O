@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+#!/bin/sh
+":" //# comment; exec /usr/bin/env node --no-warnings "$0" "$@"
+// ^^^ Weird hack to disable warnings - https://gist.github.com/rachidbch/5985f5fc8230b45c4b516ce1c14f0832
 
 var _ = require('lodash');
 var commander = require('commander');
@@ -10,12 +12,7 @@ var glob = require('globby');
 var os = require('os');
 var siftShorthand = require('sift-shorthand');
 
-// BUGFIX: Tell fs.promises to STFU about experimental support {{{
-if (Object.getOwnPropertyDescriptor(fs, 'promises')) Object.defineProperty(module.exports, 'promises', {get() { return fs.promises }})
-// }}}
-
 var o = require('./index'); // Create initial session
-
 
 Promise.resolve()
 	// Read in config file (if any) {{{
