@@ -8,6 +8,8 @@ var eventer = require('@momsfriendlydevco/eventer');
 var fs = require('fs');
 var fspath = require('path');
 var glob = require('globby');
+var prettyGronk = require('gronk');
+var prettyJsome = require('jsome');
 var monoxide = require('monoxide');
 var os = require('os');
 var promisify = require('util').promisify;
@@ -28,7 +30,7 @@ var o = {
 		profile: undefined, // The currently active profile (if any)
 		uri: undefined, // MongoDB URI to connect to
 		connectionOptions: {}, // MongoDB extra connection details
-		pretty: false, // Pretty print output?
+		pretty: false, // Pretty print output? ENUM: false, true, 'colors', 'paths' / 'gron' / 'gronk'
 		schemas: [], // Include these globs (globby compatible string / array) before running
 		savePath: fspath.join(os.tmpdir(), 'o'),
 		logDepth: 3,
@@ -40,6 +42,33 @@ var o = {
 				objectIds: ['*._id'], // COLLECTION.PATH glob
 			},
 		},
+		prettyConfig: {
+			colors: {
+				// Reference taken from https://github.com/Javascipt/Jsome#module-
+				num: 'cyan', // stands for numbers
+				str: 'yellow', // stands for strings
+				bool: 'redBright', // stands for booleans
+				regex: 'blue', // stands for regular expressions
+				undef: 'grey', // stands for undefined
+				null: 'grey', // stands for null
+				attr: 'blueBright', // objects attributes -> { attr : value }
+				quot: 'yellowBright', // strings quotes -> "..."
+				punc: 'blue', // commas seperating arrays and objects values -> [ , , , ]
+				brack: 'blue', // for both {} and []
+			},
+		},
+	},
+
+
+	/**
+	* Transfer internal profile settings to external modules
+	*/
+	initProfile: ()=> {
+		// Inherit verbosity from profile
+		if (o.profile.verbose && o.profile.verbose > 0) o.verbose = o.profile.verbose;
+
+		// Inject JSome settings
+		_.merge(prettyJsome.colors, _.get(o, 'profile.prettyConfig.colors'));
 	},
 
 
@@ -229,7 +258,9 @@ var o = {
 		*/
 		json: obj =>
 			obj === undefined ? 'null'
-			: o.profile.pretty ? JSON.stringify(obj, null, '\t')
+			: o.profile.pretty === true ? JSON.stringify(obj, null, '\t')
+			: o.profile.pretty === 'colors' ? prettyJsome.getColoredString(obj)
+			: o.profile.pretty === 'paths' || o.profile.pretty === 'gron' || o.profile.pretty === 'gronk' ? prettyGronk(obj)
 			: JSON.stringify(obj),
 
 

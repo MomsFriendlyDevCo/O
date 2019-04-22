@@ -69,7 +69,9 @@ Each profile can be made up of any of the following settings:
 |--------------------------------|------------------------------|-------------|--------------------------------------------------------------------------------------------------------------------|
 | `uri`                          | `string`                     |             | The database URI (with optional protocol, auth details etc)                                                        |
 | `connectionOptions`            | `Object`                     | `{}`        | Additional options to set when connecting                                                                          |
-| `pretty`                       | `boolean`                    | `false`     | Whether to output JSON in a pretty-printing format                                                                 |
+| `pretty`                       | `boolean` or `string`        | `false`     | Whether to output JSON in a pretty-printing format. See notes for values                                           |
+| `prettyConfig`                 | `Object`                     | See below   | Various pretty-printing config options                                                                             |
+| `prettyConfig.colors`          | `Object`                     | See code    | Color lookup table for various types. See [Jsome](https://github.com/Javascipt/Jsome#module-) reference            |
 | `schemas`                      | `string ` / `array <string>` | `[]`        | Glob / Array of globs to scan when including schema files                                                          |
 | `skipRawCollections`           | `boolean`                    | `false`     | If set collections present without a schema will be ignored                                                        |
 | `includePaths`                 | `array <string>`             | See notes   | Array of globs to scan to discover `o` function files                                                              |
@@ -83,6 +85,7 @@ Each profile can be made up of any of the following settings:
 **Notes:**
 
 * Include paths default to the `o.js` script file path + `/functions/o.*.js` which includes the core of `o` functions
+* As well as taking regular JSON formatting options `false` (default, don't format), `true` (use pretty-printing), the `pretty` option can also be `colors` (in which case the external [Jsome](https://github.com/Javascipt/Jsome) module is used or `paths` / `gron` / `gronk` in which case the [Gronk](https://github.com/hash-bang/gronk) module is used. Note that these two latter objects are one-way parsers and cannot be used in a pipeline.
 
 
 Example command line usage

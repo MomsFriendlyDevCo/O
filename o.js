@@ -34,6 +34,7 @@ Promise.resolve()
 		}
 	})
 	.then(()=> process.env.O_PROFILE && _.merge(o.profile, siftShorthand.values(process.env.O_PROFILE))) // Merge user specified profile data
+	.then(()=> o.initProfile())
 	// }}}
 	// Discover all `o` functions {{{
 	.then(()=> glob(o.settings.global.includePaths))
