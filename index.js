@@ -31,6 +31,7 @@ var o = {
 		pretty: false, // Pretty print output?
 		schemas: [], // Include these globs (globby compatible string / array) before running
 		savePath: fspath.join(os.tmpdir(), 'o'),
+		logDepth: 3,
 		mangle: {
 			collections: {
 				lowerCase: true,
@@ -56,7 +57,7 @@ var o = {
 
 		process.stderr.write(
 			msg.map(i =>
-				_.isObject(i) ? util.inspect(i, {depth: 3, colors: colors.enabled})
+				_.isObject(i) ? util.inspect(i, {depth: o.profile.logDepth, colors: colors.enabled})
 				: _.isNumber(i) || _.isBoolean(i) ? colors.cyan(i)
 				: i.toString ? i.toString()
 				: colors.bold.red('UNPRINTABLE')

@@ -65,18 +65,19 @@ O=production o count users
 
 Each profile can be made up of any of the following settings:
 
-| Option                         | Type                           | Default     | Description                                                                                                        |
-|--------------------------------|--------------------------------|-------------|--------------------------------------------------------------------------------------------------------------------|
-| `uri`                          | `string`                       |             | The database URI (with optional protocol, auth details etc)                                                        |
-| `connectionOptions`            | `Object`                       | `{}`        | Additional options to set when connecting                                                                          |
-| `pretty`                       | `boolean`                      | `false`     | Whether to output JSON in a pretty-printing format                                                                 |
-| `schemas`                      | `string ` / `array <string>`   | `[]`        | Glob / Array of globs to scan when including schema files                                                          |
-| `skipRawCollections`           | `boolean`                      | `false`     | If set collections present without a schema will be ignored                                                        |
-| `includePaths`                 | `array <string>`               | See notes   | Array of globs to scan to discover `o` function files                                                              |
-| `savePath`                     | `string`                       | `/tmp/o`    | Where to save / load output when using `o stash`. Defaults to system temp dir                                      |
-| `mangle`                       | `Object`                       | See below   | Various data / field / collection mangling options                                                                 |
-| `mangle.collections.lowerCase` | `boolean`                      | `true`      | Whether to automatically convert all collection requests to lower case (this matches Mongoose's default behaviour) |
-| `mangle.fields.objectIds`      | `array <string>`               | `['*._id']` | A glob of collection + field paths to convert into OIDs before querying                                            |
+| Option                         | Type                         | Default     | Description                                                                                                        |
+|--------------------------------|------------------------------|-------------|--------------------------------------------------------------------------------------------------------------------|
+| `uri`                          | `string`                     |             | The database URI (with optional protocol, auth details etc)                                                        |
+| `connectionOptions`            | `Object`                     | `{}`        | Additional options to set when connecting                                                                          |
+| `pretty`                       | `boolean`                    | `false`     | Whether to output JSON in a pretty-printing format                                                                 |
+| `schemas`                      | `string ` / `array <string>` | `[]`        | Glob / Array of globs to scan when including schema files                                                          |
+| `skipRawCollections`           | `boolean`                    | `false`     | If set collections present without a schema will be ignored                                                        |
+| `includePaths`                 | `array <string>`             | See notes   | Array of globs to scan to discover `o` function files                                                              |
+| `savePath`                     | `string`                     | `/tmp/o`    | Where to save / load output when using `o stash`. Defaults to system temp dir                                      |
+| `mangle`                       | `Object`                     | See below   | Various data / field / collection mangling options                                                                 |
+| `mangle.collections.lowerCase` | `boolean`                    | `true`      | Whether to automatically convert all collection requests to lower case (this matches Mongoose's default behaviour) |
+| `mangle.fields.objectIds`      | `array <string>`             | `['*._id']` | A glob of collection + field paths to convert into OIDs before querying                                            |
+| `logDepth`                     | `number`                     | `3`         | How deeply to output logged objects                                                                                |
 
 
 **Notes:**
