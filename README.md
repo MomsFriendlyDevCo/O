@@ -32,6 +32,17 @@ A Command Line JSON manipulation toolbox aimed mainly at MongoDB.
 	- Finding all users by RegExp on company name is horrible but works - `o find users '{company: {$in: `o ids users name~=/ACME/`}}'`
 
 
+Installation
+------------
+Install via NPM in the usual way:
+
+```
+npm i -g @momsfriendlydevco/o
+```
+
+(You may need a `sudo` prefix depending on your Node setup)
+
+
 O functions
 ===========
 A full list of O functions is available by either typing `o --help` or on in the [functions reference](./FUNCTIONS.md)
