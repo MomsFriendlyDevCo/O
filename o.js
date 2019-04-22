@@ -23,6 +23,7 @@ Promise.resolve()
 			.catch(()=> {}) // Ignore non-existant config files
 	)
 	.then(()=> o.settings.global && _.merge(o.profile, o.settings.global)) // Merge global profile
+	.then(()=> o.settings.output && process.stdout.isTTY && _.merge(o.profile, o.settings.output)) // Merge output profile if we are an TTY endpoint
 	.then(()=> {
 		if (process.env.O) { // Adopt a specific profile
 			if (!o.settings[process.env.O]) throw new Error(`Unknown profile to adopt from "O" environment variable: "${process.env.O}"`);

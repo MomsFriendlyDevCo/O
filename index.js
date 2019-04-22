@@ -45,15 +45,15 @@ var o = {
 		prettyConfig: {
 			colors: {
 				// Reference taken from https://github.com/Javascipt/Jsome#module-
-				num: 'cyan', // stands for numbers
-				str: 'yellow', // stands for strings
-				bool: 'redBright', // stands for booleans
-				regex: 'blue', // stands for regular expressions
-				undef: 'grey', // stands for undefined
-				null: 'grey', // stands for null
-				attr: 'blueBright', // objects attributes -> { attr : value }
-				quot: 'yellowBright', // strings quotes -> "..."
-				punc: 'blue', // commas seperating arrays and objects values -> [ , , , ]
+				num: 'cyan', // numbers
+				str: 'yellow', // strings
+				bool: 'cyan', // booleans
+				regex: 'blue', // regular expressions
+				undef: 'grey', // undefined
+				null: 'grey', // null
+				attr: 'blueBright', // object keys
+				quot: 'yellowBright', // string quotes -> "..."
+				punc: 'blue', // commas seperating arrays and object values -> [ , , , ]
 				brack: 'blue', // for both {} and []
 			},
 		},
