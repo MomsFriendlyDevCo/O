@@ -10,11 +10,12 @@ A Command Line JSON manipulation toolbox aimed mainly at MongoDB.
 **O fundamentals:**
 
 1. All O functions begin with `o function`, where the function name is the second argument
-2. All functions are either streaming or blocking. Streaming scripts take a document at a time in a pipeline, operate on it then move to the next. Blocking functions have to wait for the previous process to finish before they can operate. Efficiency occurs when as few blocking operations occur within a pipeline as possible. If blocking operations cannot be avoided they should be at the end of pipelines.
-3. Functions may use other functions where needed - `o count $COLLECTION $QUERY` is really just a wrapper for `o find --count $COLLECTION $QUERY` but when given an input stream thef function instead counts documents.
-4. For ease of use, wherever JSON is specified as a query or input the [Hanson](https://github.com/timjansen/hanson) specification is also allowed
-5. Documents retrieved with `o find` are decorated with the additional field `_collection` which is used by downstream commands like `o save` to determine which collection to save back to
-6. All queries are processed by [Sift-Shorthand](https://github.com/hash-bang/sift-shorthand#readme) and support [Hanson](https://github.com/timjansen/hanson), `key=val` and other combinations
+2. O primarily handles with arrays of objects (henceforth "collections", where each item is a "document")
+3. All functions are either streaming or blocking. Streaming scripts take a document at a time in a pipeline, operate on it then move to the next. Blocking functions have to wait for the previous process to finish before they can operate. Efficiency occurs when as few blocking operations occur within a pipeline as possible. If blocking operations cannot be avoided they should be at the end of pipelines
+4. Functions may use other functions where needed - `o count $COLLECTION $QUERY` is really just a wrapper for `o find --count $COLLECTION $QUERY` but when given an input stream count the documents instead
+5. For ease of use, wherever JSON is specified as a query or input the [Hanson](https://github.com/timjansen/hanson) specification is also allowed
+6. Documents retrieved with `o find` are decorated with the additional field `_collection` which is used by downstream commands like `o save` to determine which collection to save back to
+7. All queries are processed by [Sift-Shorthand](https://github.com/hash-bang/sift-shorthand#readme) and support [Hanson](https://github.com/timjansen/hanson), `key=val` and other combinations
 
 
 **Goals:**
@@ -28,7 +29,7 @@ A Command Line JSON manipulation toolbox aimed mainly at MongoDB.
 	- `o find users | o skip 3 | o limit 3` - Limit to 4-6 users, much easier to use `o find users --skip 3 --limit 3` in the initial find function
 	- `o find users | o count` - Massive data pull from server only to count it. Use `o use minimal=true | ...` to enable minimal transfer or `o find users --count` instead to minimize overhead
 	- `o find users | o find status=active` - Massive data pull only to filter in later process
-* Subqueries are inefficient but easy:
+* Sub-queries are inefficient but easy:
 	- Finding all users by RegExp on company name is horrible but works - `o find users '{company: {$in: `o ids users name~=/ACME/`}}'`
 
 
@@ -48,9 +49,27 @@ O functions
 A full list of O functions is available by either typing `o --help` or on in the [functions reference](./FUNCTIONS.md)
 
 
+Frequently Asked Questions
+==========================
+
+* **Why "O"?** The main script name looks a little like a bullet point and is easy to type repeatedly into a console, this tool is also heavily influenced by [Monoxide](https://github.com/hash-bang/Monoxide) (of which the chemical symbol would be one Oxygen atom or "O")
+* **Can O work with non-collection data?** Yes, O is relatively unopinionated as to the type of data it deals with but its mostly based around collections
+* **How efficient is O** - Each O function runs in its own thread so provided the work in each thread is minimal this should run across the maximal number of CPU's your machine has
+* **Can I plug in my own custom scripts?** - Yes, see the `o apply` function which allows external functionality either per-document or for the entire collection
+* **I have feedback or a suggestions** - Please contact [the author](mailto:m@ttcarter.com) who is always happy to get feedback
+
+
 Profile options
 ===============
 All settings are stored in `~/.o` and are in a simple INI format with each profile specified as the group. The `global` group functions as the defaults for each subsequent profile. `default` is used when no specific profile is specified in the `O` environment variable.
+
+Profiles are loaded in the following order with successive profiles overwriting the settings of the earlier ones:
+
+1. `global` profile - loaded for all profiles to specify global settings
+2. `output` profile - only loaded if the current `o` function is an endpoint-TTY (i.e. the final output pipeline before the output goes to a user). This profile is useful to set pretty print outputs when debugging
+3. Profile specified by the `O` environment variable OR the `default` profile
+4. Settings found in the `O_PROFILE` environment variable then overwrite any of the above
+
 
 ```
 # Count users in the default profile
