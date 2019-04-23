@@ -128,7 +128,7 @@ var o = {
 				ro.functions[func].path, // Path to script (not this parent script)
 				...args, // Rest of command line after the shorthand command name
 			]);
-			if(!ro.verbose) ro.verbose = ro.cli.verbose || 0; // Inherit verbosity from command line
+			if (ro.cli.verbose > ro.verbose) ro.verbose = ro.profile.verbose = ro.cli.verbose || 0; // Inherit verbosity from command line
 		};
 
 		var prom = Promise.resolve(require(ro.functions[func].path))
@@ -167,7 +167,7 @@ var o = {
 		*/
 		profile: ()=> {
 			// Inherit verbosity from profile
-			if (o.profile.verbose && o.profile.verbose > 0) o.verbose = o.profile.verbose;
+			if (o.profile.verbose && o.profile.verbose > 0) o.verbose = o.profile.verbose = parseInt(o.profile.verbose);
 
 			// Inject JSome settings
 			_.merge(prettyJsome.colors, _.get(o, 'profile.prettyConfig.colors'));
