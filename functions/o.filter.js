@@ -14,9 +14,7 @@ module.exports = o => {
 	o.log(1, 'Filtering with query', siftQuery);
 	var sifter = sift(siftQuery);
 
-	o.on('doc', doc => {
-		if (sifter(doc)) o.output.doc(doc);
-	});
+	o.on('doc', doc => sifter(doc) && o.output.doc(doc));
 
 	return Promise.resolve()
 		.then(()=> o.output.startCollection())
