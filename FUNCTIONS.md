@@ -3,6 +3,20 @@ O function reference
 All function help is accessible using `o <function> --help`.
 
 
+**Functions by purpose:**
+
+* **Start-points** - [o find](#o-find), [o stash](#o-stash)
+* **End-points** - [o save](#o-save), [o-stash](#o-stash)
+* **Fetching data** - [o find](#o-find), [o populate](#o-populate)
+* **Summarizing data** - [o count](#o-count), [o progress](#o-progress), [o throttle](#o-throttle)
+* **Filtering documents** - [o find](#o-find), [o filter](#o-filter), [o limit](#o-limit), [o skip](#o-skip), [o sort](#o-sort), [o uniq](#o-uniq)
+* **Pulling apart documents or drilling down** - [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), [o select](#o-select), [o thru](#o-thru)
+* **Changing data** - [o map](#o-map), [o set](#o-set)
+* **Integration with external scripts** - [o map](#o-map), [o thru](#o-thru)
+* **Database meta information** - [o collections](#o-collections)
+* **O meta information** - [o profile](#o-profile), [o-stash](#o-stash)
+
+
 o
 -
 

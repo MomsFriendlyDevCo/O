@@ -55,7 +55,7 @@ Frequently Asked Questions
 * **Why "O"?** The main script name looks a little like a bullet point and is easy to type repeatedly into a console, this tool is also heavily influenced by [Monoxide](https://github.com/hash-bang/Monoxide) (of which the chemical symbol would be one Oxygen atom or "O")
 * **Can O work with non-collection data?** Yes, O is relatively unopinionated as to the type of data it deals with but its mostly based around collections
 * **How efficient is O** - Each O function runs in its own thread so provided the work in each thread is minimal this should run across the maximal number of CPU's your machine has
-* **Can I plug in my own custom scripts?** - Yes, see the `o apply` function which allows external functionality either per-document or for the entire collection
+* **Can I plug in my own custom scripts?** - Yes, see the `o map` function which allows external functionality either per-document or for the entire collection
 * **I have feedback or a suggestions** - Please contact [the author](mailto:m@ttcarter.com) who is always happy to get feedback
 
 
