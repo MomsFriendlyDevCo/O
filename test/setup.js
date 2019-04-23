@@ -91,9 +91,11 @@ var setup = module.exports = {
 	},
 	// }}}
 
+	// teardownO {{{
 	teardownO() {
 		return o.destroy();
 	},
+	// }}}
 
 	// teardownConnection {{{
 	teardownConnection() {

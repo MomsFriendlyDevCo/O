@@ -8,6 +8,7 @@ module.exports = o => {
 	o.cli
 		.description('Extend a sub-object field by its ID')
 		.option('--collection <name>', 'Use the specified collection name instead of the document._collection meta property')
+		.option('--select <fields>', 'Only pull the specified fields')
 		.usage('<paths[=mapping]...>')
 		.note('Paths can be specified in dotted notation format')
 		.note('Adding a mapping will populate the full object at the specified path instead of overwriting the original')
@@ -15,6 +16,7 @@ module.exports = o => {
 		.parse();
 
 	var paths = siftShorthand.values(o.cli.args);
+	if (o.verbose) o.log(1, 'Populate', _(paths).pickBy(v => v).map((v, k) => k).join(', '));
 
 	if (!paths) throw new Error('At least one path must be specified to populate a document');
 
@@ -31,6 +33,7 @@ module.exports = o => {
 						path: _.isString(mapping) ? mapping : path,
 						match: {_id: monoxide.utilities.objectID(_.get(doc, path))},
 						model: _.get(o, ['db', 'models', collection, '$mongooseModel', 'schema', 'paths', path, 'options', 'ref']),
+						select: o.cli.select ? o.cli.select.split(/\s*,\s*/) : undefined,
 					};
 
 					// No model available - try and guess it from context
@@ -49,15 +52,23 @@ module.exports = o => {
 					if (!population.path) throw new Error('Unable to determine population local path');
 					if (!population.match) throw new Error('Unable to determine population match criteria');
 
+					var agg = [
+						{$match: population.match},
+						population.select ? {$project: population.select.reduce((total, v) => Object.assign(total, {[v]: 1}), {})} : null,
+						{$limit: 1},
+					].filter(i => i);
+					o.log(2, 'Using population aggregation', agg);
+
 					return Promise.resolve()
-						.then(()=> new Promise((resolve, reject) => o.db.models[population.model].$mongoModel.aggregate([
-							{$match: population.match},
-							{$limit: 1},
-						], (err, cursor) => {
+						.then(()=> new Promise((resolve, reject) => o.db.models[population.model].$mongoModel.aggregate(agg, (err, cursor) => {
+							o.log(3, 'Population recieved aggregation cursor');
 							if (err) return reject(err);
 							resolve(cursor);
 						})))
-						.then(cursor => cursor.next())
+						.then(cursor => new Promise((resolve, reject) => cursor.next((err, res) => {
+							if (err) return reject(err);
+							resolve(res);
+						})))
 						.then(res => {
 							if (res) _.set(doc, population.path, res);
 						})

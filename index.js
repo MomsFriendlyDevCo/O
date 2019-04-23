@@ -186,7 +186,7 @@ var o = {
 			Promise.resolve()
 				// Queue up clean-up events {{{
 				.then(()=> {
-					o.on('close', ()=> monoxide.disconnect())
+					o.on('close', ()=> monoxide.disconnect());
 				})
 				// }}}
 				// Connect to the database {{{
