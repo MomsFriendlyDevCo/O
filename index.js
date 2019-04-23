@@ -138,7 +138,6 @@ var o = {
 			})
 			.then(()=> ro.emit('close'))
 			.then(()=> ro.emit('finish'))
-			.then(()=> console.warn('DIE'))
 
 		return settings.clone ? ro : prom;
 	},
