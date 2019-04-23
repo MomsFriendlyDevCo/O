@@ -35,17 +35,9 @@ Promise.resolve()
 		}
 	})
 	.then(()=> process.env.O_PROFILE && _.merge(o.profile, siftShorthand.values(process.env.O_PROFILE))) // Merge user specified profile data
-	.then(()=> o.initProfile())
+	.then(()=> o.init.profile())
 	// }}}
-	// Discover all `o` functions {{{
-	.then(()=> glob(o.settings.global.includePaths))
-	.then(paths =>
-		o.functions = _(paths)
-			.mapKeys(path => fspath.basename(path).replace(/^o\./, '').replace(/\.js$/, ''))
-			.mapValues(path => ({path}))
-			.value()
-	)
-	// }}}
+	.then(()=> o.init.functions())
 	// Create commander UI {{{
 	.then(()=> {
 		var func = process.argv.slice(2).find(a => !a.startsWith('-')); // Find first probable command

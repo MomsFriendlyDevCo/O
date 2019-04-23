@@ -1,8 +1,10 @@
+var _ = require('lodash');
 var expect = require('chai').expect;
 var exec = require('@momsfriendlydevco/exec');
 var fspath = require('path');
 var monoxide = require('monoxide');
 var mlog = require('mocha-logger');
+var o = require('..');
 var scenario = require('mongoose-scenario');
 var promisify = require('util').promisify;
 
@@ -38,7 +40,9 @@ var setup = module.exports = {
 
 		return Promise.resolve()
 			.then(()=> setup.teardownSchemas())
+			.then(()=> setup.teardownO())
 			.then(()=> setup.teardownConnection())
+			.then(()=> process.exit(0))
 	},
 	// }}}
 
@@ -62,6 +66,12 @@ var setup = module.exports = {
 				+ 'pretty=true,'
 				+ `schemas=${__dirname}/models/*.js`,
 		};
+
+		_.merge(o.profile, {
+			uri: mongoURI,
+			pretty: true,
+			schemas: `${__dirname}/models/*.js`,
+		});
 	},
 	// }}}
 
@@ -80,6 +90,10 @@ var setup = module.exports = {
 		});
 	},
 	// }}}
+
+	teardownO() {
+		return o.destroy();
+	},
 
 	// teardownConnection {{{
 	teardownConnection() {
@@ -101,7 +115,6 @@ var setup = module.exports = {
 	// validateUser {{{
 	validateUser: user => {
 		expect(user).to.have.property('_id');
-		expect(user._id).to.be.a('string');
 		expect(user).to.have.property('_collection');
 		expect(user._collection).to.be.a('string');
 		expect(user).to.have.property('name');

@@ -13,12 +13,18 @@ var prettyJsome = require('jsome');
 var monoxide = require('monoxide');
 var os = require('os');
 var promisify = require('util').promisify;
+var stream = require('stream');
 var temp = require('temp');
 var util = require('util');
 
 var o = {
 	verbose: 0,
 	functions: {}, // Key is short (basename) function name sans 'o.*.js` trimming, value is the require'd module export which should be {description$, help(), exec()}
+	streams: {
+		in: process.stdin,
+		out: process.stdout,
+		err: process.stderr,
+	},
 	settings: {
 		global: {
 			includePaths: [
@@ -61,18 +67,6 @@ var o = {
 
 
 	/**
-	* Transfer internal profile settings to external modules
-	*/
-	initProfile: ()=> {
-		// Inherit verbosity from profile
-		if (o.profile.verbose && o.profile.verbose > 0) o.verbose = o.profile.verbose;
-
-		// Inject JSome settings
-		_.merge(prettyJsome.colors, _.get(o, 'profile.prettyConfig.colors'));
-	},
-
-
-	/**
 	* Utility function to log to STDERR
 	* This function automatically filters by verbosity level
 	* @param {number} [level=0] Debugging verbosity level, the higher the number the rarer it is that users will see the output
@@ -84,7 +78,7 @@ var o = {
 			if (o.verbose < verbosity) return; // Not in a verbose-enough mode to output
 		}
 
-		process.stderr.write(
+		o.streams.err.write(
 			msg.map(i =>
 				_.isObject(i) ? util.inspect(i, {depth: o.profile.logDepth, colors: colors.enabled})
 				: _.isNumber(i) || _.isBoolean(i) ? colors.cyan(i)
@@ -101,40 +95,92 @@ var o = {
 	* This can also be used within a function to redirect to another
 	* @param {string} func The function name to run
 	* @param {array} [args...] CLI arguments to pass
+	* @param {Object} [settings] Additional settings
+	* @param {boolean} [settings.clone] Create a new `O` clone and return it when executing as a stream, use this to run another function but not return its output directly
+	* @returns {Promise} A promise which will resolve when the function completes, if `settings.capture` this returns the O object
 	*/
 	run: (func, ...args) => {
-		if (!o.functions[func]) throw new Error(`Unable to run non-existant function "${func}"`);
+		if (!o.functions[func]) throw new Error(`Unable to run non-existant function "${func}" or O not initialized`);
+
+		var settings = {
+			clone: false,
+		};
+		if (args.length && _.isObject(args[args.length-1])) { // Assume last arg is a settings object
+			_.merge(settings, args[args.length-1]);
+			args.pop();
+		}
+
+		var ro = settings.clone ? o.utilities.cloneO() : o; // Decide what version of 'O' to use in this function
 
 		o.log(4, 'Running function', func);
 
-		o.cli = new commander.Command() // Setup a stub Commander Command
+		ro.cli = new commander.Command() // Setup a stub Commander Command
 			.version(require('./package.json').version)
 			.name(`o ${func}`)
 			.usage('[arguments]')
 			.option('-v, --verbose', 'Be verbose - use multiple to increase verbosity', (v, total) => total + 1, 0)
 
 		// Sub-class the .parse function to always work with the rewritten argument array + inherit common parameters like verbose
-		var originalParse = o.cli.parse;
-		o.cli.parse = ()=> {
-			originalParse.call(o.cli, [
+		var originalParse = ro.cli.parse;
+		ro.cli.parse = ()=> {
+			originalParse.call(ro.cli, [
 				process.argv[0], // Original intepreter (usually node)
-				o.functions[func].path, // Path to script (not this parent script)
+				ro.functions[func].path, // Path to script (not this parent script)
 				...args, // Rest of command line after the shorthand command name
 			]);
-			if(!o.verbose) o.verbose = o.cli.verbose || 0; // Inherit verbosity from command line
+			if(!ro.verbose) ro.verbose = ro.cli.verbose || 0; // Inherit verbosity from command line
 		};
 
-		return Promise.resolve(require(o.functions[func].path))
+		var prom = Promise.resolve(require(ro.functions[func].path))
 			.then(module => {
-				if (!_.isFunction(module)) throw new Error(`O module "${o.functions[func].path}" did not return a promise!`);
-				return Promise.resolve(module.call(o, o));
+				if (!_.isFunction(module)) throw new Error(`O module "${ro.functions[func].path}" did not return a promise!`);
+				return Promise.resolve(module.call(ro, ro));
 			})
-			.then(()=> o.emit('close'))
+			.then(()=> ro.emit('close'))
+			.then(()=> ro.emit('finish'))
+			.then(()=> console.warn('DIE'))
+
+		return settings.clone ? ro : prom;
 	},
 
 
 	/**
+	* Various initalization functionality
+	* @var {Object}
+	*/
+	init: {
+		/**
+		* Discover all `o` functions
+		* @returns {Promise} A promise which will resolve when the functions are loaded
+		*/
+		functions: ()=>
+			Promise.resolve()
+				.then(()=> glob(o.settings.global.includePaths))
+				.then(paths =>
+					o.functions = _(paths)
+						.mapKeys(path => fspath.basename(path).replace(/^o\./, '').replace(/\.js$/, ''))
+						.mapValues(path => ({path}))
+						.value()
+				),
+
+		/**
+		* Transfer internal profile settings to external modules
+		*/
+		profile: ()=> {
+			// Inherit verbosity from profile
+			if (o.profile.verbose && o.profile.verbose > 0) o.verbose = o.profile.verbose;
+
+			// Inject JSome settings
+			_.merge(prettyJsome.colors, _.get(o, 'profile.prettyConfig.colors'));
+		},
+	},
+
+	destroy: ()=> o.emit('close'),
+
+
+	/**
 	* Various database handling functionality
+	* @var {Object}
 	*/
 	db: {
 		connect: ()=>
@@ -195,13 +241,13 @@ var o = {
 		* @returns {Promise} A promise which resolves when the collection stream has completed
 		*/
 		requestCollectionStream: (blocking = false) => {
-			if (process.stdin.isTTY) return new Error('Input stream is a TTY - should be a stream of document data');
+			if (o.streams.in.isTTY) return new Error('Input stream is a TTY - should be a stream of document data');
 			var collection = []; // Collection cache
 
 			return Promise.resolve()
 				.then(()=> {
 					if (!blocking) {
-						return process.stdin;
+						return o.streams.in;
 					} else {
 						var tempFile = temp.path({prefix: 'o.', suffix: '.json'});
 						o.log(3, 'Using blocking temporary file', tempFile);
@@ -212,7 +258,7 @@ var o = {
 								var writeStream = fs.createWriteStream(tempFile)
 									.on('close', ()=> resolve(fs.createReadStream(tempFile)))
 
-								process.stdin.pipe(writeStream);
+								o.streams.in.pipe(writeStream);
 							})) // Exit with writeStream context
 					}
 				})
@@ -328,7 +374,7 @@ var o = {
 		* @returns {Promise} A promise which returns when the output stream has terminated
 		*/
 		end: ()=> new Promise((resolve, reject) => {
-			process.stdout.end(err => {
+			o.streams.out.end(err => {
 				if (err) return reject(err);
 				resolve();
 			});
@@ -352,9 +398,9 @@ var o = {
 		* @returns {Promise} A promise which will resolve when the stream write finishes
 		*/
 		write: text => new Promise((resolve, reject) => {
-			var hasWritten = process.stdout.write(text, 'utf-8');
+			var hasWritten = o.streams.out.write(text, 'utf-8');
 			if (!hasWritten) {
-				process.stdout.once('drain', resolve);
+				o.streams.out.once('drain', resolve);
 			} else {
 				process.nextTick(resolve);
 			}
@@ -371,6 +417,42 @@ var o = {
 	* @example Evaluate a series of promises with a delay, one at a time, in order (note that the map returns a promise factory, otherwise the promise would execute immediately)
 	*/
 	utilities: {
+		/**
+		* Create a shallow clone of this O object and ensure it has a new emitter
+		* This function is used when running a sub-function that needs to act like its within its own process, but who's output is mediated by a higher function
+		* In addition to replacing the output streams this function also redirects document writes to emiters
+		* @emits outputDoc The redirected version of o.output.doc()
+		* @emits outputCollection The redirected version of o.output.collection()
+		* @returns {O} A clone of this O object
+		*/
+		cloneO: ()=> {
+			// Create null stream which just drops all input
+			var nullStream = stream.Writable();
+			nullStream._write = (chunk, enc, cb) => {
+				cb();
+			};
+
+			var co = _.merge(_.clone(o), {
+				isClone: true,
+				db: o.db, // Merge original DB handle
+				output: {
+					isFake: true,
+					collection: doc => co.emit('outputCollection', doc),
+					doc: doc => co.emit('outputDoc', doc),
+				},
+				streams: { // Override Err + Output stream with new copies
+					out: nullStream,
+					err: nullStream,
+				},
+			});
+
+			// Glue new eventer onto clone (replacing the old)
+			eventer.extend(co);
+
+			return co;
+		},
+
+
 		/**
 		* Execute promises in series
 		* Promise.allSeries(
