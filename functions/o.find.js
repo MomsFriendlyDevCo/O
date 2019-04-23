@@ -133,7 +133,7 @@ module.exports = o => {
 		// Iterate over cursor until exhausted {{{
 		.then(()=> o.cli.one || o.cli.count ? o.output.start() : o.output.startCollection())
 		.then(()=> new Promise((resolve, reject) => {
-			if (o.cli.dryRun) resolve(); // Don't actually run anything
+			if (o.cli.dryRun) return resolve(); // Don't actually run anything
 			var iterateCursor = ()=> {
 				o.aggregation.cursor.next()
 					.then(doc => {

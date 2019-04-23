@@ -16,14 +16,12 @@ module.exports = o => {
 				: o.log(' ', p)
 		);
 	} else { // Show current profile
-		o.log(
-			o.output.json(
-				o.cli.obscure
-					? _.cloneDeepWith(o.profile, v =>
-						_.isString(v) ? o.output.obscure(v) : undefined
-					)
-					: o.profile
-			)
+		o.output.doc(
+			o.cli.obscure
+				? _.cloneDeepWith(o.profile, v =>
+					_.isString(v) ? o.output.obscure(v) : undefined
+				)
+				: o.profile
 		);
 	}
 };
