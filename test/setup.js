@@ -42,7 +42,6 @@ var setup = module.exports = {
 			.then(()=> setup.teardownSchemas())
 			.then(()=> setup.teardownO())
 			.then(()=> setup.teardownConnection())
-			.then(()=> process.exit(0))
 	},
 	// }}}
 

@@ -82,7 +82,9 @@ var o = {
 			msg.map(i =>
 				_.isObject(i) ? util.inspect(i, {depth: o.profile.logDepth, colors: colors.enabled})
 				: _.isNumber(i) || _.isBoolean(i) ? colors.cyan(i)
-				: i.toString ? i.toString()
+				: i && i.toString ? i.toString()
+				: i === null ? 'null'
+				: i === undefined ? 'undefined'
 				: colors.bold.red('UNPRINTABLE')
 			).join(' ') + '\n',
 			'utf-8'
@@ -139,7 +141,7 @@ var o = {
 			.then(()=> ro.emit('close'))
 			.then(()=> ro.emit('finish'))
 
-		return settings.clone ? ro : prom;
+		return (settings.clone ? ro : prom);
 	},
 
 
