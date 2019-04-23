@@ -18,7 +18,6 @@ module.exports = o => {
 		.option('-d, --delay <timestring>', 'Add a delay to each record retrieval', v => timestring(v, 'ms'), 0)
 		.option('-p, --pluck [field]', 'Return only an array of the single matching field')
 		.option('-i, --ids', 'Shorthand for --pluck=_id')
-		.option('--explain', 'Show the aggregation query that is being run (use --dry-run to not actually do anything)')
 		.option('--count-exact', 'Insist on the exact count of documents rather than the much quicker best estimate')
 		.note('The select function is passed directly onto the aggregation projection, if you want more complex selection use `o select` or `o pluck`')
 		.parse();
@@ -115,7 +114,6 @@ module.exports = o => {
 		// }}}
 		// Execute the aggregation query and return a pointer {{{
 		.then(()=> {
-			if (o.cli.explain) app.log(0, 'Aggregation query:', `db.${o.aggregation.model}.aggregate(${o.output.json(o.aggregation.query)})`);
 			if (o.cli.dryRun) {
 				o.log(1, 'Dry run mode, not actually running the query');
 				return undefined;
@@ -123,6 +121,7 @@ module.exports = o => {
 				return new Promise((resolve, reject) =>
 					o.db.models[o.aggregation.model].$mongoModel.aggregate(o.aggregation.query, {cursor: {batchSize: 0}}, (err, cursor) => {
 						if (err) return reject(err);
+						o.log(2, 'Receieved aggregation cursor');
 						o.aggregation.cursor = cursor;
 						resolve();
 					})
@@ -147,6 +146,7 @@ module.exports = o => {
 								return o.output.doc(doc);
 							}
 						} else { // Exhausted cursor
+							o.log(2, 'Aggregation exhausted');
 							resolve();
 						}
 					})

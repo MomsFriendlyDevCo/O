@@ -103,7 +103,6 @@ Options:
   -d, --delay <timestring>  Add a delay to each record retrieval (default: 0)
   -p, --pluck [field]       Return only an array of the single matching field
   -i, --ids                 Shorthand for --pluck=_id
-  --explain                 Show the aggregation query that is being run (use --dry-run to not actually do anything)
   --count-exact             Insist on the exact count of documents rather than the much quicker best estimate
   -h, --help                output usage information
 
