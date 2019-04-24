@@ -14,6 +14,7 @@ module.exports = o => {
 		.option('--list', 'List all stashes')
 		.option('--delete <glob>', 'Delete all stashes matching a glob')
 		.option('-s, --silent', 'Dont display any output, just save')
+		.option('--no-stream', 'Bypass streaming large collections to use the internal object emitter (this is used by some internal functions and not meant for humans)')
 		.note('If no reference is given when saving a random two word name is used')
 		.note('If no reference is given when loading the most recent save is used')
 		.note('The `savePath` is variable is used as the location to save to, this can be set per-profile')
@@ -54,14 +55,21 @@ module.exports = o => {
 				o.log(1, 'Restoring', reference);
 				return reference;
 			})
-			.then(reference => new Promise((resolve, reject) => {
-				var inputStream = fs.createReadStream(fspath.join(o.profile.savePath, reference + '.json'));
-				inputStream.on('error', e => reject(`Invalid stash: "${reference}"`))
-				process.stdout.on('close', resolve);
-				inputStream.pipe(process.stdout);
-			}))
+			.then(reference => {
+				if (o.cli.stream) {
+					return new Promise((resolve, reject) => {
+						var inputStream = fs.createReadStream(fspath.join(o.profile.savePath, reference + '.json'));
+						inputStream.on('error', e => reject(`Invalid stash: "${reference}"`))
+						process.stdout.on('close', resolve);
+						inputStream.pipe(process.stdout);
+					});
+				} else { // Use block reading + emitting
+					return fs.promises.readFile(fspath.join(o.profile.savePath, reference + '.json'))
+						.then(contents => JSON.parse(contents))
+						.then(contents => o.output.collection(contents))
+				}
+			})
 		// }}}
-	} else if (o.cli.list) {
 	} else if (o.cli.delete) {
 		// Delete stashes {{{
 		return Promise.resolve()

@@ -299,6 +299,50 @@ var o = {
 				var result = require(path);
 				return Promise.resolve(_.isFunction(result) ? result() : result);
 			})),
+
+
+		/**
+		* Parse a Mongo / Sift / Sift-Shorthand comparible array of items and return the result
+		* This is a thin wrapper around sift-shorthand but also includes stash parsing
+		* @param {*} args... The argument(s) to parse
+		* @returns {Promise <Object>} A promise which will resolve as the parsed query
+		*/
+		query: (args) =>
+			Promise.resolve()
+				.then(()=> args = args.map(arg => {
+					if (_.isString(arg) && /^{.+}$/.test(arg)) { // Replace stash references within a JSON / HanSON string
+						return arg.replace(/@([^\W\-\_]+)/ig, (all, ref) => `{"$stash":"${ref}"}`);
+					} else {
+						return arg;
+					}
+				}))
+				.then(()=> siftShorthand(...args))
+				.then(v => {
+					var stash = {}; // Promises which will resolve with the loaded stashes
+
+					var walk = (node, parent, key) => {
+						if (_.isObject(node) && node.$stash) { // Looks like a stash reference
+							if (stash[node.$stash]) { // Already loading?
+								stash[node.$stash].then(stash => parent[key] = stash);
+							} else { // Create stash loader
+								o.log(4, 'Need to load stash', node.$stash, 'for dynamic query');
+								stash[node.$stash] = new Promise((resolve, reject) =>
+									o.run('stash', '-vvvvv', '--load', node.$stash, '--no-stream', {clone: true})
+										.on('outputCollection', data => parent[key] = data)
+										.on('close', resolve)
+								);
+							}
+						} else if (_.isObject(node)) {
+							_.forEach(node, (v, k) => walk(v, node, k));
+						} else {
+							return node;
+						}
+					};
+					walk(v);
+
+					return Promise.all(_.values(stash))
+						.then(()=> v) // Wait for all stashes to resolve then return the mutated node tree
+				}),
 	},
 
 
@@ -357,6 +401,7 @@ var o = {
 			_.isArray(input) ? o.output.startCollection().then(()=> o.output.collection(input)).then(()=> o.output.endCollection())
 			: _.isObject(input) ? o.output.doc(input)
 			: o.output.write(o.output.json(input)),
+
 
 		/**
 		* Open the connection to STDOUT

@@ -35,17 +35,17 @@ module.exports = o => {
 		// }}}
 		.then(()=> o.db.connect())
 		// Compute aggregation query {{{
-		.then(()=> {
+		.then(()=> o.input.query(o.cli.args.slice(1)))
+		.then(query => {
 			o.aggregation = {
 				cursor: undefined, // Calculated in next step
 				model: o.cli.args.shift(),
-				query: undefined, // Calculated in this step
+				query: undefined, // Final aggregation query to run
 			};
 			if (_.get(o, 'profile.mangle.collections.lowerCase')) o.aggregation.model = o.aggregation.model.toLowerCase();
 			if (!o.db.models[o.aggregation.model]) throw new Error(`Unknown model "${o.aggregation.model}"`);
 
 			var agg = [];
-			var query = siftShorthand(o.cli.args);
 			o.log(3, 'Use query', query);
 
 			// Query / $match
