@@ -94,6 +94,7 @@ Options:
   -V, --version             output the version number
   -v, --verbose             Be verbose - use multiple to increase verbosity
   -1, --one                 Fetch only the first document as an object (not an array)
+  --id <id>                 Alias of `--one _id=${id}` - i.e. return exactly one record by its ID
   -c, --count               Count documents rather than return them
   -s, --select <fields...>  Select a CSV of fields (may be specified multiple times (default: [])
   -o, --sort <fields...>    Sort by a CSV of fields (sort decending with a "-" prefix, may be specified multiple times) (default: [])

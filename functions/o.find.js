@@ -9,6 +9,7 @@ module.exports = o => {
 		.description('Fetch documents from a collection with an optional query')
 		.usage('<collection> [query...]')
 		.option('-1, --one', 'Fetch only the first document as an object (not an array)')
+		.option('--id <id>', 'Alias of `--one _id=${id}` - i.e. return exactly one record by its ID')
 		.option('-c, --count', 'Count documents rather than return them')
 		.option('-s, --select <fields...>', 'Select a CSV of fields (may be specified multiple times', (v, total) => total.concat(v.split(/\s*,\s*/)), [])
 		.option('-o, --sort <fields...>', 'Sort by a CSV of fields (sort decending with a "-" prefix, may be specified multiple times)', (v, total) => total.concat(v.split(/\s*,\s*/)), [])
@@ -25,6 +26,7 @@ module.exports = o => {
 	return Promise.resolve()
 		// Sanity checks {{{
 		.then(()=> {
+			if (o.cli.id) { o.cli.one = true; o.cli.args.push(`{_id: "${o.cli.id}"}`); }
 			if (o.cli.count && (o.cli.limit || o.cli.skip)) throw new Error('Specifying --count with --limit or --skip makes no sense');
 			if (o.cli.limit && o.cli.one) throw new Error('Specifying --limit and --one makes no sense');
 			if (o.cli.limit && (o.cli.limit < 1 || !isFinite(o.cli.limit))) throw new Error('--limit must be a positive, finite integer');
