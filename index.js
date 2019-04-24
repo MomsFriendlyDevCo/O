@@ -481,11 +481,9 @@ var o = {
 		cloneO: ()=> {
 			// Create null stream which just drops all input
 			var nullStream = stream.Writable();
-			nullStream._write = (chunk, enc, cb) => {
-				cb();
-			};
+			nullStream._write = (chunk, enc, cb) => cb();
 
-			var co = _.merge(_.clone(o), {
+			var co = _.merge(_.cloneDeep(o), {
 				isClone: true,
 				db: o.db, // Merge original DB handle
 				output: {

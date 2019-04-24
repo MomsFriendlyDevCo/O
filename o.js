@@ -26,7 +26,7 @@ Promise.resolve()
 	.then(()=> o.settings.output && process.stdout.isTTY && _.merge(o.profile, o.settings.output)) // Merge output profile if we are an TTY endpoint
 	.then(()=> {
 		if (process.env.O) { // Adopt a specific profile
-			if (!o.settings[process.env.O]) throw new Error(`Unknown profile to adopt from "O" environment variable: "${process.env.O}"`);
+			if (!o.settings[process.env.O]) throw new Error(`Unknown profile to switch to profile "${process.env.O}" in "O" environment variable`);
 			_.merge(o.profile, o.settings[process.env.O]);
 			o.profile.profile = process.env.O;
 		} else if (o.settings.default) { // Adopt default profile if it exists
