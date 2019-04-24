@@ -13,6 +13,7 @@ var prettyJsome = require('jsome');
 var monoxide = require('monoxide');
 var os = require('os');
 var promisify = require('util').promisify;
+var siftShorthand = require('sift-shorthand');
 var stream = require('stream');
 var temp = require('temp');
 var util = require('util');
@@ -41,6 +42,9 @@ var o = {
 		savePath: fspath.join(os.tmpdir(), 'o'),
 		logDepth: 3,
 		mangle: {
+			json: {
+				dotted: false,
+			},
 			collections: {
 				lowerCase: true,
 			},
@@ -173,6 +177,9 @@ var o = {
 
 			// Inject JSome settings
 			_.merge(prettyJsome.colors, _.get(o, 'profile.prettyConfig.colors'));
+
+			// Translate mange.json.dotted to siftShorthand version
+			siftShorthand.defaults.mergeJSON = _.get(o, 'profile.mangle.json.dotted') ? _.merge : Object.assign;
 		},
 	},
 

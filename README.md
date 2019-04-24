@@ -97,6 +97,7 @@ Each profile can be made up of any of the following settings:
 | `savePath`                     | `string`                     | `/tmp/o`    | Where to save / load output when using `o stash`. Defaults to system temp dir                                      |
 | `mangle`                       | `Object`                     | See below   | Various data / field / collection mangling options                                                                 |
 | `mangle.collections.lowerCase` | `boolean`                    | `true`      | Whether to automatically convert all collection requests to lower case (this matches Mongoose's default behaviour) |
+| `mangle.json.dotted`           | `boolean`                    | `false`     | Rewrite dotted paths to a hierarchical object, disable this to use raw user specified paths                        |
 | `mangle.fields.objectIds`      | `array <string>`             | `['*._id']` | A glob of collection + field paths to convert into OIDs before querying                                            |
 | `logDepth`                     | `number`                     | `3`         | How deeply to output logged objects                                                                                |
 
