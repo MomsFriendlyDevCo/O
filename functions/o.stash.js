@@ -19,6 +19,7 @@ module.exports = o => {
 		.note('If no reference is given when loading the most recent save is used')
 		.note('The `savePath` is variable is used as the location to save to, this can be set per-profile')
 		.note('If neither "save" or "load" is specified, "list" is assumed')
+		.note('Stashes can also be loaded within queries by prefixing entries with an "@". e.g. "{_id: {\'$in\': @myIds}}"')
 		.parse();
 
 	if (o.cli.silent && o.cli.load) throw new Error('Specifying --load and --silent makes no sense');

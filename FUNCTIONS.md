@@ -352,6 +352,7 @@ Options:
   --list              List all stashes
   --delete <glob>     Delete all stashes matching a glob
   -s, --silent        Dont display any output, just save
+  --no-stream         Bypass streaming large collections to use the internal object emitter (this is used by some internal functions and not meant for humans)
   -h, --help          output usage information
 
 Notes:
@@ -359,6 +360,7 @@ Notes:
   * If no reference is given when loading the most recent save is used
   * The `savePath` is variable is used as the location to save to, this can be set per-profile
   * If neither "save" or "load" is specified, "list" is assumed
+  * Stashes can also be loaded within queries by prefixing entries with an "@". e.g. "{_id: {'$in': @myIds}}"
 ```
 
 
