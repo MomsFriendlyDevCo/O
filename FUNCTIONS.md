@@ -358,7 +358,7 @@ Notes:
   * If no reference is given when saving a random two word name is used
   * If no reference is given when loading the most recent save is used
   * The `savePath` is variable is used as the location to save to, this can be set per-profile
-  * If neither "save" or "load" is specified, "save" is assumed
+  * If neither "save" or "load" is specified, "list" is assumed
 ```
 
 

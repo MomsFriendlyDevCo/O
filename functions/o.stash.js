@@ -17,12 +17,12 @@ module.exports = o => {
 		.note('If no reference is given when saving a random two word name is used')
 		.note('If no reference is given when loading the most recent save is used')
 		.note('The `savePath` is variable is used as the location to save to, this can be set per-profile')
-		.note('If neither "save" or "load" is specified, "save" is assumed')
+		.note('If neither "save" or "load" is specified, "list" is assumed')
 		.parse();
 
 	if (o.cli.silent && o.cli.load) throw new Error('Specifying --load and --silent makes no sense');
 
-	if (o.cli.save || (!o.cli.load && !o.cli.list && !o.cli.delete)) {
+	if (o.cli.save) {
 		// Save mode {{{
 		return Promise.resolve()
 			.then(()=> mkdirp(o.profile.savePath))
@@ -62,6 +62,13 @@ module.exports = o => {
 			}))
 		// }}}
 	} else if (o.cli.list) {
+	} else if (o.cli.delete) {
+		// Delete stashes {{{
+		return Promise.resolve()
+			.then(()=> glob(fspath.join(o.profile.savePath, o.cli.delete + '.json')))
+			.then(paths => Promise.all(paths.map(path => fs.promises.unlink(path))))
+		// }}}
+	} else {
 		// List mode {{{
 		return Promise.resolve()
 			.then(()=> !o.cli.silent && o.output.startCollection())
@@ -73,14 +80,6 @@ module.exports = o => {
 			})))
 			.then(()=> !o.cli.silent && o.output.endCollection())
 		// }}}
-	} else if (o.cli.delete) {
-		// Delete stashes {{{
-		return Promise.resolve()
-			.then(()=> glob(fspath.join(o.profile.savePath, o.cli.delete + '.json')))
-			.then(paths => Promise.all(paths.map(path => fs.promises.unlink(path))))
-		// }}}
-	} else {
-		throw new Error('Dont know what to do');
 	}
 
 };
