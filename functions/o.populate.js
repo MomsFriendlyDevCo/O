@@ -9,8 +9,9 @@ module.exports = o => {
 		.description('Extend a sub-object field by its ID')
 		.option('--collection <name>', 'Use the specified collection name instead of the document._collection meta property')
 		.option('--select <fields>', 'Only pull the specified fields')
-		.usage('<paths[=mapping]...>')
+		.usage('<paths[@collection][=mapping]...>')
 		.note('Paths can be specified in dotted notation format')
+		.note('Adding a \'@collection\' specifier will use that collection instead of guessing')
 		.note('Adding a mapping will populate the full object at the specified path instead of overwriting the original')
 		.note('If no schema is available to determine the reference the field name is tried followed by its plural before giving up')
 		.parse();
@@ -32,12 +33,16 @@ module.exports = o => {
 					var population = { // Collection we are populating against
 						path: _.isString(mapping) ? mapping : path,
 						match: {_id: monoxide.utilities.objectID(_.get(doc, path))},
-						model: _.get(o, ['db', 'models', collection, '$mongooseModel', 'schema', 'paths', path, 'options', 'ref']),
+						model: undefined, // Calculated below
 						select: o.cli.select ? o.cli.select.split(/\s*,\s*/) : undefined,
 					};
 
-					// No model available - try and guess it from context
-					if (!population.model) {
+					// Try to determine model
+					if (/@/.test(population.path)) { // Path has a collection specifier
+						[population.path, population.model] = population.path.split('@', 2);
+					} else if (_.has(o, ['db', 'models', collection, '$mongooseModel', 'schema', 'paths', path, 'options', 'ref'])) { // Schema exists
+						population.model = _.get(o, ['db', 'models', collection, '$mongooseModel', 'schema', 'paths', path, 'options', 'ref'])
+					} else { // Guess collection from context
 						var lastSegment = _.last(path.split('.'));
 						var plural = plur(lastSegment, 2);
 						if (o.db.models[lastSegment]) { // Matches exact

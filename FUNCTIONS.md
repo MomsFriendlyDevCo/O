@@ -190,7 +190,7 @@ o populate
 ----------
 
 ```
-Usage: o populate <paths[=mapping]...>
+Usage: o populate <paths[@collection][=mapping]...>
 
 Extend a sub-object field by its ID
 
@@ -198,10 +198,12 @@ Options:
   -V, --version        output the version number
   -v, --verbose        Be verbose - use multiple to increase verbosity
   --collection <name>  Use the specified collection name instead of the document._collection meta property
+  --select <fields>    Only pull the specified fields
   -h, --help           output usage information
 
 Notes:
   * Paths can be specified in dotted notation format
+  * Adding a '@collection' specifier will use that collection instead of guessing
   * Adding a mapping will populate the full object at the specified path instead of overwriting the original
   * If no schema is available to determine the reference the field name is tried followed by its plural before giving up
 ```
