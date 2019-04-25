@@ -24,6 +24,9 @@ module.exports = o => {
 	})
 	if (includeFields.length && excludeFields.length) throw new Error('Specifying both include and exclusion fields makes no sense');
 
+	if (includeFields.length) o.log(1, 'Selecting fields', includeFields);
+	if (excludeFields.length) o.log(1, 'Excluding fields', excludeFields);
+
 	o.on('doc', doc =>
 		o.output.doc(
 			_(doc)
