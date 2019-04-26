@@ -7,7 +7,8 @@ module.exports = o => {
 	o.cli
 		.description('Fetch a remote JSON API endpoint')
 		.usage('<url> [post-data]')
-		.option('-m, --method <method>', 'Specifiy the method to use, defaults to GET if no parameters are specified, POST if they are')
+		.option('-m, --method <method>', 'Specify the method to use, defaults to GET if no parameters are specified, POST if they are')
+		.option('--headers <key=val...>', 'Accept one or more headers to supply in the request', (v, total) => total.concat([v]), [])
 		.parse();
 
 	if (!o.cli.args.length) throw new Error('URL is required');
@@ -16,12 +17,16 @@ module.exports = o => {
 	var method = o.cli.method ? o.cli.method.toUpperCase()
 		: _.isEmpty(body) ? 'GET'
 		: 'POST';
+	var headers = siftShorthand.values(o.cli.headers);
 
+	o.verbose = 10;
 	o.log(1, 'Requesting URL', url, `(via method ${method})`);
+	if (!_.isEmpty(headers)) o.log(2, 'Using HEADERS', headers);
 	if (!_.isEmpty(body)) o.log(2, 'Using BODY', body);
 
 	return axios({
 		url, method,
+		headers: _.isEmpty(headers) ? undefined : headers,
 		data: _.isEmpty(body) ? undefined : body,
 		responseType: 'json',
 		httpsAgent: new https.Agent({

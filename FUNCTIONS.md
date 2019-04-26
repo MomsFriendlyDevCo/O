@@ -153,10 +153,11 @@ Usage: o fetch <url> [post-data]
 Fetch a remote JSON API endpoint
 
 Options:
-  -V, --version          output the version number
-  -v, --verbose          Be verbose - use multiple to increase verbosity
-  -m, --method <method>  Specifiy the method to use, defaults to GET if no parameters are specified, POST if they are
-  -h, --help             output usage information
+  -V, --version           output the version number
+  -v, --verbose           Be verbose - use multiple to increase verbosity
+  -m, --method <method>   Specify the method to use, defaults to GET if no parameters are specified, POST if they are
+  --headers <key=val...>  Accept one or more headers to supply in the request (default: [])
+  -h, --help              output usage information
 ```
 
 
