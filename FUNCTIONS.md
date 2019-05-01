@@ -10,7 +10,7 @@ All function help is accessible using `o <function> --help`.
 * **Fetching data** - [o fetch](#o-fetch), [o find](#o-find), [o from](#o-from), [o populate](#o-populate)
 * **Summarizing data** - [o count](#o-count), [o progress](#o-progress), [o throttle](#o-throttle)
 * **Filtering documents** - [o find](#o-find), [o filter](#o-filter), [o limit](#o-limit), [o skip](#o-skip), [o sort](#o-sort), [o uniq](#o-uniq)
-* **Pulling apart documents or drilling down** - [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), [o select](#o-select), [o thru](#o-thru)
+* **Pulling apart documents or drilling down** - [o for](#o-for), [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), [o select](#o-select), [o thru](#o-thru)
 * **Changing data** - [o map](#o-map), [o set](#o-set)
 * **Integration with external scripts** - [o map](#o-map), [o thru](#o-thru)
 * **Database meta information** - [o collections](#o-collections)
@@ -163,6 +163,7 @@ Options:
   -h, --help     output usage information
 ```
 
+
 o fetch
 -------
 
@@ -177,6 +178,32 @@ Options:
   -m, --method <method>   Specify the method to use, defaults to GET if no parameters are specified, POST if they are
   --headers <key=val...>  Accept one or more headers to supply in the request (default: [])
   -h, --help              output usage information
+```
+
+
+o for
+-----
+
+```
+Usage: o for <command>
+
+Loop over an input set of documents and perform a shell operation (usually another O function)
+
+Options:
+  -V, --version                     output the version number
+  -v, --verbose                     Be verbose - use multiple to increase verbosity
+  --map                             Accept the output of each process as a map operation
+  -v, --var <variable>              Variable name to use when looping, default is "doc"
+  -t, --type <docs|collection|raw>  Input type to process (default is 'docs') (default: "docs")
+  -f, --feed                        Feed the sub-process the current record via STDIN
+  --no-template                     Do not run output arguments though a template before running (disables --var)
+  --raw                             Alias of `--type=raw
+  --wrap                            Wrap single-object output in an array
+  -h, --help                        output usage information
+
+Notes:
+  * The Lodash templating engine (`_.template`) is used to rewrite commands, see its documentation for details on syntax - https://lodash.com/docs/4.17.11#template
+  * When templating is enabled each command is given a `doc` object, `index` offset number (zero-based) and `_` (Lodash)
 ```
 
 
