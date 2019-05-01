@@ -37,7 +37,7 @@
     "mongoose-scenario": "^2.1.3"
   },
   "dependencies": {
-    "@momsfriendlydevco/eventer": "^1.1.0",
+    "@momsfriendlydevco/eventer": "^1.1.1",
     "axios": "^0.18.0",
     "bfj": "^6.1.1",
     "bfj-collections": "^1.0.3",
@@ -56,9 +56,10 @@
     "monoxide": "0.0.124",
     "namor": "^1.1.2",
     "plur": "^3.1.1",
-    "sift": "^7.0.1",
+    "sift": "^8.3.3",
     "sift-shorthand": "0.0.8",
     "temp": "^0.9.0",
-    "timestring": "^5.0.1"
+    "timestring": "^5.0.1",
+    "xlsx": "^0.14.3"
   }
 }
