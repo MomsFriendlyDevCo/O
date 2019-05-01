@@ -5,9 +5,9 @@ All function help is accessible using `o <function> --help`.
 
 **Functions by purpose:**
 
-* **Start-points** - [o fetch](#o-fetch), [o find](#o-find), [o stash](#o-stash)
-* **End-points** - [o save](#o-save), [o-stash](#o-stash)
-* **Fetching data** - [o fetch](#o-fetch), [o find](#o-find), [o populate](#o-populate)
+* **Start-points** - [o fetch](#o-fetch), [o find](#o-find), [o from](#o-from), [o stash](#o-stash)
+* **End-points** - [o save](#o-save), [o-stash](#o-stash), [o to](#o-to)
+* **Fetching data** - [o fetch](#o-fetch), [o find](#o-find), [o from](#o-from), [o populate](#o-populate)
 * **Summarizing data** - [o count](#o-count), [o progress](#o-progress), [o throttle](#o-throttle)
 * **Filtering documents** - [o find](#o-find), [o filter](#o-filter), [o limit](#o-limit), [o skip](#o-skip), [o sort](#o-sort), [o uniq](#o-uniq)
 * **Pulling apart documents or drilling down** - [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), [o select](#o-select), [o thru](#o-thru)
@@ -109,6 +109,25 @@ Options:
 
 Notes:
   * The select function is passed directly onto the aggregation projection, if you want more complex selection use `o select` or `o pluck`
+```
+
+o from
+------
+
+```
+Usage: o from [file]
+
+Convert from another format into JSON
+
+Options:
+  -V, --version   output the version number
+  -v, --verbose   Be verbose - use multiple to increase verbosity
+  --name <sheet>  The name of the sheet to use if multiple, otherwise the first is used
+  -h, --help      output usage information
+
+Notes:
+  * Supported file types: .csv, .xlsx (and anything else parsed by XLSX - https://sheetjs.gitbooks.io/docs/#file-formats)
+  * If no file is specified the intput will be streamed from STDIN in the format specified by --format
 ```
 
 
@@ -380,6 +399,27 @@ Notes:
   * The `savePath` is variable is used as the location to save to, this can be set per-profile
   * If neither "save" or "load" is specified, "list" is assumed
   * Stashes can also be loaded within queries by prefixing entries with an "@". e.g. "{_id: {'$in': @myIds}}"
+```
+
+
+o to
+----
+
+```
+Usage: o to [file]
+
+Convert from a collection to another format
+
+Options:
+  -V, --version      output the version number
+  -v, --verbose      Be verbose - use multiple to increase verbosity
+  --name <name>      The name of the worksheet (default is "Data") (default: "Data")
+  --format <format>  Specify the format when outputting to STDOUT. Can be "csv" (default) or "html" (default: "csv")
+  -h, --help         output usage information
+
+Notes:
+  * Supported file types: .csv, .xlsx (and other CSV style files)
+  * If no file is specified the output will be streamed to STDOUT in the format specified by --format
 ```
 
 
