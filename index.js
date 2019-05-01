@@ -288,6 +288,20 @@ var o = {
 
 
 		/**
+		* Request a raw stream input slurped into a string
+		* @returns {Promise <string>} A promise which will resolve with the slurped input stream
+		*/
+		requestRawSlurp: ()=> new Promise((resolve, reject) => {
+			var buf = '';
+
+			o.streams.in
+				.on('data', data => buf += data.toString())
+				.on('close', ()=> resolve(buf))
+				.on('error', reject);
+		}),
+
+
+		/**
 		* Includes external JS files in series
 		* If a file returns a function it is executed, promises are resolved before continuing in series
 		* @returns {Promise} A promise when all files are included
@@ -400,8 +414,22 @@ var o = {
 		any: input =>
 			_.isArray(input) ? o.output.startCollection().then(()=> o.output.collection(input)).then(()=> o.output.endCollection())
 			: _.isObject(input) ? o.output.doc(input)
+			: input instanceof stream.Readable ? o.output.stream(stream)
 			: o.output.write(o.output.json(input)),
 
+
+		/**
+		* Output a raw stream
+		* @param {stream.Readable} stream The readable stream to pipe to o.streams.out
+		* @returns {Promise} A promise which will complete when the stream closes
+		*/
+		stream: stream => new Promise((resolve, reject) => {
+			stream
+				.on('close', resolve)
+				.on('error', reject)
+
+			stream.pipe(o.streams.out);
+		}),
 
 		/**
 		* Open the connection to STDOUT
