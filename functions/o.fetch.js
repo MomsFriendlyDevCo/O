@@ -19,7 +19,6 @@ module.exports = o => {
 		: 'POST';
 	var headers = siftShorthand.values(o.cli.headers);
 
-	o.verbose = 10;
 	o.log(1, 'Requesting URL', url, `(via method ${method})`);
 	if (!_.isEmpty(headers)) o.log(2, 'Using HEADERS', headers);
 	if (!_.isEmpty(body)) o.log(2, 'Using BODY', body);
