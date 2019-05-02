@@ -27,6 +27,6 @@ module.exports = o => {
 
 	return Promise.resolve()
 		.then(()=> o.output.startCollection())
-		.then(()=> o.input.requestCollectionStream(blocking = true))
+		.then(()=> o.input.requestCollectionStream({blocking: true}))
 		.then(()=> o.output.endCollection())
 };

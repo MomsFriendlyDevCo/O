@@ -241,20 +241,28 @@ var o = {
 		* Request that STDIN provides a stream of documents
 		* When blocking this function flushes to disk then reads back the resultant file
 		* NOTE: Binding to the collection emitter uses tons of RAM to cache the results, bind to the collectionFile event and process the output file manually if possible
-		* @param {boolean} [blocking=false] Block the stream and wait for all documents before emitting anything, useful with 'collection*' emitters to work with an entire collection
+		* @param {Object} [options] Additional settings
+		* @param {boolean} [options.blocking=false] Block the stream and wait for all documents before emitting anything, useful with 'collection*' emitters to work with an entire collection
+		* @param {Object} [options.bfj] Additional settings to pass to BFJC / BFJ when parsing
 		* @emits doc Emitted on each document, to output use `o.output.doc()`. If nothing binds to this event no documents are output (use `collections` or some other binding to handle output elsewhere). Called as (doc)
 		* @emits collection Emitted with the full collection object when we have it. Subscribing to this emitter is not recommended as its very very memory intensive - try to work with the raw file in `collectionFile` instead. Called as (collectionDocs)
-		* @emits collectionFile (only if blocking=true) Emitted when a collection temporary file name has been allocated. Called as (path)
+		* @emits collectionFile (only if options.blocking=true) Emitted when a collection temporary file name has been allocated. Called as (path)
 		* @emits collectionStream Emitted when a valid read stream is found and streaming is about to start
 		* @returns {Promise} A promise which resolves when the collection stream has completed
 		*/
-		requestCollectionStream: (blocking = false) => {
+		requestCollectionStream: options => {
+			var settings = {
+				blocking: false,
+				bfj: {},
+				...options,
+			};
+
 			if (o.streams.in.isTTY) return new Error('Input stream is a TTY - should be a stream of document data');
 			var collection = []; // Collection cache
 
 			return Promise.resolve()
 				.then(()=> {
-					if (!blocking) {
+					if (!settings.blocking) {
 						return o.streams.in;
 					} else {
 						var tempFile = temp.path({prefix: 'o.', suffix: '.json'});
@@ -273,7 +281,7 @@ var o = {
 				.then(readStream => o.emit('collectionStream', readStream).then(()=> readStream))
 				.then(readStream => new Promise((resolve, reject) => { // Start streaming from the input stream
 					var docIndex = 0;
-					var streamer = bfjc(readStream, {allowScalars: true, pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
+					var streamer = bfjc(readStream, {allowScalars: true, ...settings.bfj, pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
 						.on('bfjc', doc => {
 							if (o.listenerCount('collection')) collection.push(doc);
 							var resume = streamer.pause(); // Pause streaming each time we accept a doc and wait for the promise to resolve

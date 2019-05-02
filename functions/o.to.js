@@ -34,5 +34,5 @@ module.exports = o => {
 		}
 	});
 
-	return o.input.requestCollectionStream(blocking = true);
+	return o.input.requestCollectionStream({blocking: true});
 };
