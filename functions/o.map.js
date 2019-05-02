@@ -34,12 +34,14 @@ module.exports = o => {
 					.split(/\s*,\s*/)
 					.map(v => guessArgument(v))
 
+				o.log(1, `Map via lodash: _.${matcher.groups.func}(${args.join(', ')})`);
 				return doc => Promise.resolve(
 					_[matcher.groups.func].apply(o,
 						args.map(a => a == '#' ? doc : a) // Replace '#' placeholder with the input document
 					)
 				);
 			} else { // No parameters
+				o.log(1, `Map via lodash: _.${matcher.groups.func}(#)`);
 				return doc => Promise.resolve(_[matcher.groups.func](doc));
 			}
 			// }}}
