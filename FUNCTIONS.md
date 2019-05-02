@@ -12,6 +12,8 @@ All function help is accessible using `o <function> --help`.
 * **Filtering documents** - [o find](#o-find), [o filter](#o-filter), [o limit](#o-limit), [o skip](#o-skip), [o sort](#o-sort), [o uniq](#o-uniq)
 * **Pulling apart documents or drilling down** - [o for](#o-for), [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), [o select](#o-select), [o thru](#o-thru)
 * **Changing data** - [o map](#o-map), [o set](#o-set)
+* **Transforming data: Arrays to Objects** - [o columns](#o-columns)
+* **Transforming data: Objects to Arrays** - [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck)
 * **Integration with external scripts** - [o map](#o-map), [o thru](#o-thru)
 * **Database meta information** - [o collections](#o-collections)
 * **O meta information** - [o profile](#o-profile), [o-stash](#o-stash)
@@ -41,6 +43,21 @@ o collections
 Usage: o collections [arguments]
 
 Output the available collections
+
+Options:
+  -V, --version  output the version number
+  -v, --verbose  Be verbose - use multiple to increase verbosity
+  -h, --help     output usage information
+```
+
+
+o columns
+---------
+
+```
+Usage: o columns <field...>
+
+Transform an array-of-arrays into a collection by named fields
 
 Options:
   -V, --version  output the version number
