@@ -7,10 +7,14 @@ module.exports = o => {
 		.usage('[file]')
 		.option('--name <name>', 'The name of the worksheet (default is "Data")', 'Data')
 		.option('--format <format>', 'Specify the format when outputting to STDOUT. Can be "csv" (default) or "html"', 'csv')
+		.option('--csv', 'Set the output format to CSV')
+		.option('--html', 'Set the output format to HTML')
 		.note('Supported file types: .csv, .xlsx (and other CSV style files)')
 		.note('If no file is specified the output will be streamed to STDOUT in the format specified by --format')
 		.parse();
 
+	if (o.cli.csv) o.cli.format = 'csv';
+	if (o.cli.html) o.cli.format = 'html';
 	if (!['csv', 'html'].includes(o.cli.format)) throw new Error('STDOUT output formats can only be "csv" or "html"');
 
 	o.on('collection', docs => {

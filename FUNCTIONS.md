@@ -144,7 +144,7 @@ Options:
 
 Notes:
   * Supported file types: .csv, .xlsx (and anything else parsed by XLSX - https://sheetjs.gitbooks.io/docs/#file-formats)
-  * If no file is specified the intput will be streamed from STDIN in the format specified by --format
+  * If no file is specified the intput will be streamed from STDIN (the XLSX module auto-detects the input stream type)
 ```
 
 
@@ -459,6 +459,8 @@ Options:
   -v, --verbose      Be verbose - use multiple to increase verbosity
   --name <name>      The name of the worksheet (default is "Data") (default: "Data")
   --format <format>  Specify the format when outputting to STDOUT. Can be "csv" (default) or "html" (default: "csv")
+  --csv              Set the output format to CSV
+  --html             Set the output format to HTML
   -h, --help         output usage information
 
 Notes:

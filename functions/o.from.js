@@ -7,7 +7,7 @@ module.exports = o => {
 		.usage('[file]')
 		.option('--name <sheet>', 'The name of the sheet to use if multiple, otherwise the first is used')
 		.note('Supported file types: .csv, .xlsx (and anything else parsed by XLSX - https://sheetjs.gitbooks.io/docs/#file-formats)')
-		.note('If no file is specified the intput will be streamed from STDIN in the format specified by --format')
+		.note('If no file is specified the intput will be streamed from STDIN (the XLSX module auto-detects the input stream type)')
 		.parse();
 
 	if (o.cli.args.length) { // Read from file
