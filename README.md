@@ -61,7 +61,7 @@ Frequently Asked Questions
 
 Profile options
 ===============
-All settings are stored in `~/.o` and are in a simple INI format with each profile specified as the group. The `global` group functions as the defaults for each subsequent profile. `default` is used when no specific profile is specified in the `O` environment variable.
+All settings are stored in `~/.o` (which can be overwritten with `.o` in the current working directory). All files are in a simple INI format with each profile specified as the group. The `global` group functions as the defaults for each subsequent profile. `default` is used when no specific profile is specified in the `O` environment variable.
 
 Profiles are loaded in the following order with successive profiles overwriting the settings of the earlier ones:
 

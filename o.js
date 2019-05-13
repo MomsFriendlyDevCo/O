@@ -16,12 +16,22 @@ var o = require('./index'); // Create initial session
 
 Promise.resolve()
 	// Read in config file (if any) {{{
+	// Read in ~/.o {{{
 	.then(()=> process.env.HOME &&
 		fs.promises.readFile(fspath.join(os.homedir(), '.o'), 'utf-8')
 			.then(contents => ini.decode(contents))
 			.then(contents => _.merge(o.settings, contents))
 			.catch(()=> {}) // Ignore non-existant config files
 	)
+	// }}}
+	// Read in $PWD/.o {{{
+	.then(()=> process.env.PWD &&
+		fs.promises.readFile(fspath.join(process.env.PWD, '.o'), 'utf-8')
+			.then(contents => ini.decode(contents))
+			.then(contents => _.merge(o.settings, contents))
+			.catch(()=> {}) // Ignore non-existant config files
+	)
+	// }}}
 	.then(()=> o.settings.global && _.merge(o.profile, o.settings.global)) // Merge global profile
 	.then(()=> o.settings.output && process.stdout.isTTY && _.merge(o.profile, o.settings.output)) // Merge output profile if we are an TTY endpoint
 	.then(()=> {
