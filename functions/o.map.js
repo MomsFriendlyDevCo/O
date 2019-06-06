@@ -1,10 +1,11 @@
 var _ = require('lodash');
 var siftShorthand = require('sift-shorthand');
+var vm = require('vm');
 
 module.exports = o => {
 	o.cli
 		.description('Run a stream of documents though a Javascript function')
-		.usage('[--collection] <_.lodashFunc>...')
+		.usage('[--collection] <_.lodashFunc | ES6 arrow func>...')
 		.option('-c, --collection', 'Run the function on the entire collection rather than on individual documents')
 		.note('Use "#" in the arg list to designate where the document should be placed in the input parameters (e.g. (`_.keys(#)`)')
 		.note('If no brackets are used the document is placed in the one and only input parameter (e.g. `_.keys`)')
@@ -44,6 +45,27 @@ module.exports = o => {
 				o.log(1, `Map via lodash: _.${matcher.groups.func}(#)`);
 				return doc => Promise.resolve(_[matcher.groups.func](doc));
 			}
+			// }}}
+		} else if (matcher = /^(?<document>[a-z0-9_\$]+?)\s*=>/i.exec(arg)) { // ES6 arrow function
+			// ES6 Arrow function {{{
+			o.log(1, `Map via ES6 arrow function using "${matcher.groups.document}" as document`);
+			try {
+				var script = new vm.Script(arg);
+			} catch (e) {
+				throw new Error(`Error while compiling script "${arg}" - ${e.toString()}`);
+			}
+			return doc => {
+				// Run the function passing in a context
+				var res = script.runInContext(vm.createContext({
+					doc, // Set a global called doc
+					[matcher.groups.document]: doc,
+				}));
+
+				// If script hands back a function (acting as a function factory) - run the function with the doc as the argument
+				if (_.isFunction(res)) res = res(doc);
+
+				return Promise.resolve(res);
+			};
 			// }}}
 		} else {
 			throw new Error(`Unknown function type: "${arg}"`);

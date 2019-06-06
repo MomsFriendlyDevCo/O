@@ -3,7 +3,7 @@ var exec = require('@momsfriendlydevco/exec');
 var mlog = require('mocha-logger');
 var setup = require('./setup');
 
-describe('`o select` CLI', function() {
+describe('`o select` CLI (Lodash)', function() {
 	this.timeout(10 * 1000);
 	before(setup.initEnvironment);
 
@@ -61,5 +61,46 @@ describe('`o select` CLI', function() {
 				});
 			})
 	)
+
+});
+
+describe('`o select` CLI (ES6 Arrow functions)', function() {
+	this.timeout(10 * 1000);
+	before(setup.initEnvironment);
+
+	it('pick from an array', ()=>
+		exec(`o map "doc => doc.name"' <${__dirname}/scenarios/users.json`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(7);
+				res.forEach(d => {
+					expect(d).to.be.an('string');
+				});
+			})
+	);
+
+	it('reduce an array', ()=>
+		exec(`o map "doc => ({name: doc.name})"' <${__dirname}/scenarios/users.json`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(7);
+				res.forEach(d => {
+					expect(d).to.be.an('object');
+					expect(Object.keys(d)).to.deep.match(['name']);
+				});
+			})
+	);
+
+	it('reduce an array concatting fields', ()=>
+		exec(`o map 'doc => ({name: doc.name, favourites: \`${doc.favourite.animal}, ${doc.favourite.color}\`})' <${__dirname}/scenarios/users.json`, {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(7);
+				res.forEach(d => {
+					expect(d).to.be.an('object');
+					expect(Object.keys(d)).to.deep.match(['name', 'favourties']);
+				});
+			})
+	);
 
 });
