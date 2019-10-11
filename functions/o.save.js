@@ -3,7 +3,7 @@ var monoxide = require('monoxide');
 
 module.exports = o => {
 	o.cli
-		.description('Save a changed document (requires either a collection specifying OR the _collection meta key in each document)')
+		.description('Save a changed document (requires either a specific collection OR the _collection meta key in each document)')
 		.option('-n, --dry-run', 'Dont actually save anything, just say what would be saved')
 		.usage('[collection]')
 		.parse();
