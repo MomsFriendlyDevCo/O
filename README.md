@@ -44,6 +44,16 @@ npm i -g @momsfriendlydevco/o
 (You may need a `sudo` prefix depending on your Node setup)
 
 
+
+Other similar projects
+----------------------
+Since O specialises in JSON the following projects are also useful to provide, filter and mutate JSON based streams:
+
+* [Jaywalker](https://github.com/hash-bang/jaywalker) - Extract JSON from a stream of junk text
+* [JC](https://github.com/kellyjonbrazil/jc) - Various shell output as JSON (for supported parsers)
+* [JQ](https://stedolan.github.io/jq/) - All-in-one JSON filtering and mutation
+
+
 O functions
 ===========
 A full list of O functions is available by either typing `o --help` or on in the [functions reference](./FUNCTIONS.md)
