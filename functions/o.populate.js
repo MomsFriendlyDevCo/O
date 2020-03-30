@@ -16,7 +16,7 @@ module.exports = o => {
 		.note('If no schema is available to determine the reference the field name is tried followed by its plural before giving up')
 		.parse();
 
-	var paths = siftShorthand.values(o.cli.args);
+	var paths = o.cli.args; // NOTE: We don't use siftShorthand here as we want the raw input otherwise dotted notation gets screwed up
 	if (o.verbose) o.log(1, 'Populate', _(paths).pickBy(v => v).map((v, k) => k).join(', '));
 
 	if (!paths) throw new Error('At least one path must be specified to populate a document');
@@ -25,6 +25,7 @@ module.exports = o => {
 		var collection = o.cli.collection || _.get(doc, '_collection');
 		if (!collection) throw new Error('Unable to determine collection for document, set doc._collection or use `--collection <name>`');
 		if (!o.db.models[collection]) throw new Error(`Invalid or non-initialized collection "${collection}"`);
+		o.log(3, 'Doc', doc._id);
 
 		return Promise.all(
 			_(paths)
@@ -32,7 +33,7 @@ module.exports = o => {
 				.map((mapping, path) => {
 					var population = { // Collection we are populating against
 						path: _.isString(mapping) ? mapping : path,
-						match: {_id: monoxide.utilities.objectID(_.get(doc, path))},
+						match: {_id: monoxide.utilities.objectID(_.get(doc, _.isString(mapping) ? mapping : path))},
 						model: undefined, // Calculated below
 						select: o.cli.select ? o.cli.select.split(/\s*,\s*/) : undefined,
 					};
@@ -53,6 +54,8 @@ module.exports = o => {
 							throw new Error(`Unable to determine population remote model. Tried looking for "${lastSegment}" and "${plural}" but couldnt find a matching model`);
 						}
 					}
+
+					o.log(2, 'Populate', population);
 
 					if (!population.path) throw new Error('Unable to determine population local path');
 					if (!population.match) throw new Error('Unable to determine population match criteria');
