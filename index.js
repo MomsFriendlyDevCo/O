@@ -38,6 +38,7 @@ var o = {
 		connectionOptions: {}, // MongoDB extra connection details
 		pretty: false, // Pretty print output? ENUM: false, true, 'colors', 'paths' / 'gron' / 'gronk'
 		schemas: [], // Include these globs (globby compatible string / array) before running
+		rawCollections: true, // Include collections we found that don't have corresponding schema files
 		savePath: fspath.join(os.tmpdir(), 'o'),
 		logDepth: 3,
 		mangle: {
@@ -208,22 +209,20 @@ var o = {
 				// Include all schema files {{{
 				.then(()=> glob(_.castArray(o.profile.schemas).map(p => o.utilities.resolvePath(p))))
 				.then(paths => o.input.include(paths))
-				.then(()=> mongoosy.compileModels())
-				.then(()=> o.db.models = mongoosy.models)
-				.then(()=> o.log(3, 'Loaded models', _.keys(mongoosy.models)))
-				.then(()=> { // Load shema-less collections as raw models
-					if (o.settings.skipRawCollections) return;
-					var knownModels = new Set(_.keys(o.db.models));
+				// Include raw collections {{{
+				.then(()=> {
+					if (!o.profile.rawCollections) return;
 
-					return mongoosy.connection.db.collections()
-						.then(collections => collections.filter(c => !knownModels.has(c.s.name)))
-						.then(collections =>
-							collections.map(c => {
-								o.db.models[c.s.name] = new mongoosy.Model(c.s.name, {});
-								return c.s.name;
-							})
+					return mongoosy.connection.db.listCollections().toArray()
+						.then(collections => collections
+							.map(c => c.name)
+							.filter(c => !mongoosy.schemas[c]) // Find only not-already declared models
+							.forEach(c => o.db.models = mongoosy.model(c, {}))
 						)
-				}),
+				})
+				.then(()=> !_.isEmpty(mongoosy.schemas) && mongoosy.compileModels())
+				.then(()=> o.db.models = mongoosy.models)
+				.then(()=> o.log(3, 'Loaded models', _.keys(mongoosy.models))),
 				// }}}
 
 		models: {}, // Eventual pointer to the available database models when the connection has finished

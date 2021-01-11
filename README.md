@@ -94,22 +94,22 @@ O=production o count users
 
 Each profile can be made up of any of the following settings:
 
-| Option                         | Type                         | Default     | Description                                                                                                        |
-|--------------------------------|------------------------------|-------------|--------------------------------------------------------------------------------------------------------------------|
-| `uri`                          | `string`                     |             | The database URI (with optional protocol, auth details etc)                                                        |
-| `connectionOptions`            | `Object`                     | `{}`        | Additional options to set when connecting                                                                          |
-| `pretty`                       | `boolean` or `string`        | `false`     | Whether to output JSON in a pretty-printing format. See notes for values                                           |
-| `prettyConfig`                 | `Object`                     | See below   | Various pretty-printing config options                                                                             |
-| `prettyConfig.colors`          | `Object`                     | See code    | Color lookup table for various types. See [Jsome](https://github.com/Javascipt/Jsome#module-) reference            |
-| `schemas`                      | `string ` / `array <string>` | `[]`        | Glob / Array of globs to scan when including schema files                                                          |
-| `skipRawCollections`           | `boolean`                    | `false`     | If set collections present without a schema will be ignored                                                        |
-| `includePaths`                 | `array <string>`             | See notes   | Array of globs to scan to discover `o` function files                                                              |
-| `savePath`                     | `string`                     | `/tmp/o`    | Where to save / load output when using `o stash`. Defaults to system temp dir                                      |
-| `mangle`                       | `Object`                     | See below   | Various data / field / collection mangling options                                                                 |
-| `mangle.collections.lowerCase` | `boolean`                    | `true`      | Whether to automatically convert all collection requests to lower case (this matches Mongoose's default behaviour) |
-| `mangle.json.dotted`           | `boolean`                    | `false`     | Rewrite dotted paths to a hierarchical object, disable this to use raw user specified paths                        |
-| `mangle.fields.objectIds`      | `array <string>`             | `['*._id']` | A glob of collection + field paths to convert into OIDs before querying                                            |
-| `logDepth`                     | `number`                     | `3`         | How deeply to output logged objects                                                                                |
+| Option                           | Type                           | Default       | Description                                                                                                          |
+| -------------------------------- | ------------------------------ | ------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `uri`                            | `string`                       |               | The database URI (with optional protocol, auth details etc)                                                          |
+| `connectionOptions`              | `Object`                       | `{}`          | Additional options to set when connecting                                                                            |
+| `pretty`                         | `boolean` or `string`          | `false`       | Whether to output JSON in a pretty-printing format. See notes for values                                             |
+| `prettyConfig`                   | `Object`                       | See below     | Various pretty-printing config options                                                                               |
+| `prettyConfig.colors`            | `Object`                       | See code      | Color lookup table for various types. See [Jsome](https://github.com/Javascipt/Jsome#module-) reference              |
+| `schemas`                        | `string ` / `array <string>`   | `[]`          | Glob / Array of globs to scan when including schema files                                                            |
+| `rawCollections`                 | `boolean`                      | `true`        | Import collections directly from Mongo even if we do not have a declared schema                                      |
+| `includePaths`                   | `array <string>`               | See notes     | Array of globs to scan to discover `o` function files                                                                |
+| `savePath`                       | `string`                       | `/tmp/o`      | Where to save / load output when using `o stash`. Defaults to system temp dir                                        |
+| `mangle`                         | `Object`                       | See below     | Various data / field / collection mangling options                                                                   |
+| `mangle.collections.lowerCase`   | `boolean`                      | `true`        | Whether to automatically convert all collection requests to lower case (this matches Mongoose's default behaviour)   |
+| `mangle.json.dotted`             | `boolean`                      | `false`       | Rewrite dotted paths to a hierarchical object, disable this to use raw user specified paths                          |
+| `mangle.fields.objectIds`        | `array <string>`               | `['*._id']`   | A glob of collection + field paths to convert into OIDs before querying                                              |
+| `logDepth`                       | `number`                       | `3`           | How deeply to output logged objects                                                                                  |
 
 
 **Notes:**
