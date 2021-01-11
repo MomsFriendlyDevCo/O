@@ -10,7 +10,7 @@ describe('`o find` CLI', function() {
 	after(setup.teardown);
 
 	it('dry-run a find query', ()=>
-		exec('o find users -vv --dry-run', {json: true})
+		exec('o find users -vvv --dry-run', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(0);
@@ -18,7 +18,7 @@ describe('`o find` CLI', function() {
 	);
 
 	it('find all users', ()=>
-		exec('o find users -vv', {json: true})
+		exec('o find users -vvv', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length.above(1);

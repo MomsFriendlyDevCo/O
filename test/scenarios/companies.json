@@ -1,6 +1,6 @@
 [
 	{
-		"_ref": "company.acme",
+		"$": "$company.acme",
 		"name": "Acme Inc",
 		"locations": [
 			{"country": "UK", "city": "London"},
@@ -9,14 +9,14 @@
 		]
 	},
 	{
-		"_ref": "company.aperture",
+		"$": "$company.aperture",
 		"name": "Aperture Science",
 		"locations": [
 			{"country": "US", "city": "New York"}
 		]
 	},
 	{
-		"_ref": "company.empty",
+		"$": "$company.empty",
 		"name": "Empty Box Incoporated",
 		"locations": [
 			{"country": "AU", "city": "Sydney"}

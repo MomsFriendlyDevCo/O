@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var monoxide = require('monoxide');
+var mongoosy = require('@momsfriendlydevco/mongoosy');
 
 module.exports = o => {
 	o.cli
@@ -24,10 +24,7 @@ module.exports = o => {
 
 			o.log(1, `Deleting document ${collection} / # ${doc._id}`);
 			if (_.get(o, 'profile.mangle.collections.lowerCase')) collection = collection.toLowerCase();
-			return monoxide.delete({
-				$collection: collection,
-				$id: doc._id,
-			})
+			return mongoosy.models[collection].deleteOne({_id: doc._id})
 				.then(()=> o.cli.thru && o.output.doc(doc))
 				.then(()=> o.log(2, `Deleted document ${collection} / # ${doc._id}`))
 		}

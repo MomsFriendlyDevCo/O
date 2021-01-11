@@ -10,9 +10,8 @@ var fspath = require('path');
 var glob = require('globby');
 var prettyGronk = require('gronk');
 var prettyJsome = require('jsome');
-var monoxide = require('monoxide');
+var mongoosy = require('@momsfriendlydevco/mongoosy');
 var os = require('os');
-var promisify = require('util').promisify;
 var siftShorthand = require('sift-shorthand');
 var stream = require('stream');
 var temp = require('temp');
@@ -195,35 +194,35 @@ var o = {
 			Promise.resolve()
 				// Queue up clean-up events {{{
 				.then(()=> {
-					o.on('close', ()=> monoxide.disconnect());
+					o.on('close', ()=> mongoosy.disconnect());
 				})
 				// }}}
 				// Connect to the database {{{
 				.then(()=> {
 					if (!o.profile.uri) throw new Error('No database URI specified');
 				})
-				.then(()=> promisify(monoxide.use)(['promises', 'iterators']))
 				.then(()=> o.log(2, 'Connecting to', o.output.obscure(o.profile.uri)))
-				.then(()=> monoxide.connect(o.profile.uri, o.profile.connectionOptions))
+				.then(()=> mongoosy.connect(o.profile.uri, o.profile.connectionOptions))
 				.then(()=> o.log(2, 'Connected'))
 				// }}}
 				// Include all schema files {{{
 				.then(()=> glob(_.castArray(o.profile.schemas).map(p => o.utilities.resolvePath(p))))
 				.then(paths => o.input.include(paths))
-				.then(()=> o.db.models = monoxide.models)
+				.then(()=> mongoosy.compileModels())
+				.then(()=> o.db.models = mongoosy.models)
+				.then(()=> o.log(3, 'Loaded models', _.keys(mongoosy.models)))
 				.then(()=> { // Load shema-less collections as raw models
 					if (o.settings.skipRawCollections) return;
-					var knownModels = new Set(_.map(o.db.models, m => m.$mongoModel.name));
+					var knownModels = new Set(_.keys(o.db.models));
 
-					return monoxide.connection.db.collections()
+					return mongoosy.connection.db.collections()
 						.then(collections => collections.filter(c => !knownModels.has(c.s.name)))
 						.then(collections =>
 							collections.map(c => {
-								o.db.models[c.s.name] = new monoxide.monoxideModel(c.s.name, {});
+								o.db.models[c.s.name] = new mongoosy.Model(c.s.name, {});
 								return c.s.name;
 							})
 						)
-						.then(collectionNames => o.log(3, 'Loaded raw collections:', collectionNames.join(', ')))
 				}),
 				// }}}
 

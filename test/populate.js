@@ -9,7 +9,7 @@ describe('`o populate` CLI', function() {
 	after(setup.teardown);
 
 	it('find all users and populate their company information', ()=>
-		exec('o find users | o populate company', {json: true})
+		exec('o find users | o populate company -vvvv', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(7);
@@ -30,8 +30,7 @@ describe('`o populate` CLI', function() {
 				expect(res).to.have.length(7);
 				res.forEach(user => {
 					expect(user).to.have.property('company');
-					expect(user.company).to.be.an('object');
-					expect(Object.keys(user.company)).to.be.deep.equal(['_id', 'name']);
+					expect(user.company).to.be.a('string');
 				});
 			})
 	);

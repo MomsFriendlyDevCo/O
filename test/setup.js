@@ -2,11 +2,9 @@ var _ = require('lodash');
 var expect = require('chai').expect;
 var exec = require('@momsfriendlydevco/exec');
 var fspath = require('path');
-var monoxide = require('monoxide');
+var mongoosy = require('@momsfriendlydevco/mongoosy');
 var mlog = require('mocha-logger');
 var o = require('..');
-var scenario = require('mongoose-scenario');
-var promisify = require('util').promisify;
 
 
 var mongoURI = 'mongodb://localhost/o-cli-test';
@@ -48,8 +46,7 @@ var setup = module.exports = {
 	// initConnection {{{
 	initConnection() {
 		return Promise.resolve()
-			.then(()=> promisify(monoxide.use)(['iterators', 'promises']))
-			.then(()=> monoxide.connect(mongoURI))
+			.then(()=> mongoosy.connect(mongoURI))
 	},
 	// }}}
 
@@ -78,15 +75,13 @@ var setup = module.exports = {
 	initSchemas() {
 		require('./models/users');
 		require('./models/companies');
+		return mongoosy.compileModels();
 	},
 	// }}}
 
 	// initScenarios {{{
 	initScenarios: function() {
-		return promisify(scenario.import)(setup.scenarios, {
-			connection: monoxide.connection,
-			nuke: true,
-		});
+		return mongoosy.scenario(setup.scenarios);
 	},
 	// }}}
 
@@ -98,7 +93,7 @@ var setup = module.exports = {
 
 	// teardownConnection {{{
 	teardownConnection() {
-		return monoxide.connection.close();
+		return mongoosy.disconnect();
 	},
 	// }}}
 
@@ -106,15 +101,16 @@ var setup = module.exports = {
 	teardownSchemas() {
 		return Promise.all(
 			['users', 'companies'].map(model =>
-				monoxide.connection.db.dropCollection(model)
+				mongoosy.connection.db.dropCollection(model)
 			)
 		)
-		.then(()=> monoxide.connection.db.dropDatabase())
+		.then(()=> mongoosy.connection.db.dropDatabase())
 	},
 	// }}}
 
 	// validateUser {{{
 	validateUser: user => {
+		expect(user).to.be.an('object');
 		expect(user).to.have.property('_id');
 		expect(user).to.have.property('_collection');
 		expect(user._collection).to.be.a('string');

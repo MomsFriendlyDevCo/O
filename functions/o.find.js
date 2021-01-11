@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var monoxide = require('monoxide');
+var mongoosy = require('@momsfriendlydevco/mongoosy');
 var minimatch = require('minimatch');
 var timestring = require('timestring');
 var siftShorthand = require('sift-shorthand');
@@ -58,17 +58,16 @@ module.exports = o => {
 				* @returns {ObjectId|Object|array} The valid Mongo comparitor
 				*/
 				var setOID = item => {
-					var mkOID = monoxide.utilities.objectID;
 					if (_.isString(item)) {
-						return mkOID(item);
+						return new mongoosy.Types.ObjectID(item);
 					} else if (_.isObject(item) && (item.$eq || item.$ne)) { // Simple object assignment
 						return {
-							[_(item).keys().first()]: mkOID(_(item).values().first()),
+							[_(item).keys().first()]: new mongoosy.Types.ObjectID(_(item).values().first()),
 						};
 					} else if (_.isObject(item) && (item.$in || item.$nin)) { // Array assignment
 						var iterKey = _(item).keys().first();
 						return {
-							[iterKey]: item[iterKey].map(i => mkOID(i))
+							[iterKey]: item[iterKey].map(i => new mongoosy.Types.ObjectID(i))
 						};
 					}
 				};
@@ -84,6 +83,8 @@ module.exports = o => {
 				});
 
 				agg.push({$match: query});
+			} else if (!o.cli.count) { // Not counting?
+				agg.push({$match: {}}); // Match all (we need at least one stage in the aggregation pipline to keep Mongoose happy)
 			}
 
 			// Select / $project
@@ -120,14 +121,8 @@ module.exports = o => {
 				o.log(1, 'Dry run mode, not actually running the query');
 				return undefined;
 			} else {
-				return new Promise((resolve, reject) =>
-					o.db.models[o.aggregation.model].$mongoModel.aggregate(o.aggregation.query, {cursor: {batchSize: 0}}, (err, cursor) => {
-						if (err) return reject(err);
-						o.log(2, 'Receieved aggregation cursor');
-						o.aggregation.cursor = cursor;
-						resolve();
-					})
-				);
+				o.aggregation.cursor = o.db.models[o.aggregation.model].aggregate(o.aggregation.query).cursor().exec();
+				o.log(2, 'Receieved aggregation cursor');
 			}
 		})
 		// }}}

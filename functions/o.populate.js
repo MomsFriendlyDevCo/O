@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var monoxide = require('monoxide');
+var mongoosy = require('@momsfriendlydevco/mongoosy');
 var plur = require('plur');
 var promisify = require('util').promisify;
 
@@ -27,22 +27,24 @@ module.exports = o => {
 		var collection = o.cli.collection || _.get(doc, '_collection');
 		if (!collection) throw new Error('Unable to determine collection for document, set doc._collection or use `--collection <name>`');
 		if (!o.db.models[collection]) throw new Error(`Invalid or non-initialized collection "${collection}"`);
-		o.log(3, 'Doc', doc._id);
+		o.log(3, 'Populate doc', doc._id);
 
 		return Promise.all(paths.map(path => {
 			var population = { // Collection we are populating against
 				path, // In array form from dotted path
+				as: undefined, // What to save the key as, defaults to path
 				matches: {}, // Calculated below from endpoints, Key= ID to lookup, values = addresses to update with that value
 				model: undefined, // Calculated below
 				select: o.cli.select ? o.cli.select.split(/\s*,\s*/) : undefined,
 			};
 
-			// Try to determine model
-			if (/@/.test(population.path)) { // Path has a collection specifier
-				[population.path, population.model] = population.path.split('@', 2);
-			} else if (_.has(o, ['db', 'models', collection, '$mongooseModel', 'schema', 'paths', path, 'options', 'ref'])) { // Schema exists
-				population.model = _.get(o, ['db', 'models', collection, '$mongooseModel', 'schema', 'paths', path, 'options', 'ref'])
-			} else { // Guess collection from context
+			var parsedPath = /^(?<path>.+?)(@(?<model>.+?))?(=(?<as>.+))?$/.exec(path);
+			if (!parsedPath) throw new Error(`Unable to parse path "${path}"`);
+			population = {...population, ...parsedPath.groups};
+
+			if (!population.model && _.has(o, ['db', 'models', collection, 'schema', 'paths', population.path, 'options', 'ref'])) { // Try and guess model from schema ref
+				population.model = _.get(o, ['db', 'models', collection, 'schema', 'paths', population.path, 'options', 'ref']);
+			} else {
 				var lastSegment = _.last(path.split('.'));
 				var plural = plur(lastSegment, 2);
 				if (o.db.models[lastSegment]) { // Matches exact
@@ -50,14 +52,13 @@ module.exports = o => {
 				} else if (o.db.models[plural]) { // Found plural
 					population.model = plural;
 				} else {
-					throw new Error(`Unable to determine population remote model. Tried looking for "${lastSegment}" and "${plural}" but couldnt find a matching model`);
+					throw new Error(`Unable to determine population remote model. Tried looking against the schema ref and for "${lastSegment}" and "${plural}" but couldnt find a matching model`);
 				}
 			}
-			if (/=/.test(population.model)) // Has a field specifier?
-				[population.model, population.select] = population.model.split('=', 2);
-
+			//
 			// Split path into array notation so its easier to digest
 			population.path = population.path.split('.');
+			if (!population.as) population.as = population.path;
 
 			var walk = (root, pathOffset = 0, nodePath = []) => {
 				var key = population.path[pathOffset];
@@ -77,8 +78,6 @@ module.exports = o => {
 			}
 			walk(doc, 0);
 
-			// o.log(3, 'Populate', population);
-
 			// Resolve all cached values if we have them
 			if (o.cli.cache) {
 				Object.keys(population.matches)
@@ -86,54 +85,29 @@ module.exports = o => {
 					.forEach(key => {
 						o.log(2, `Resolved lookup of ${key} from cache`);
 						var subDocValue = valueCache[`${population.model}-${key}`];
-						population.matches[key].forEach(path => _.set(doc, path, subDocValue));
+						population.matches[key].forEach(path => _.set(doc, population.as, subDocValue));
 						delete population.matches[key]; // Remove from resolve stack
 					})
 			}
 
 			if (!Object.keys(population.matches).length) return Promise.resolve(); // Nothing needs lookup - presumably already fixed everything via cache
 
-			return Promise.resolve()
-				// Construct aggregation query {{{
-				.then(()=> [
-					{$match: {_id: {$in: Object.keys(population.matches).map(oid => monoxide.utilities.objectID(oid))}}},
-					population.select && {$project: {[population.select]: 1}},
-				].filter(i => i))
-				.then(v => {
-					o.log(2, 'Perform aggregation', require('util').inspect(v, {depth: null, colors: true}))
-					return v;
-				})
-				// }}}
-				// Perform aggregation {{{
-				.then(aggregationQuery => new Promise((resolve, reject) =>
-					o.db.models[population.model].$mongoModel.aggregate(aggregationQuery, {cursor: {batchSize: 0}}, (err, cursor) => {
-						if (err) return reject(err);
-						o.log(2, 'Receieved aggregation cursor');
-						resolve(cursor);
-					})
-				))
-				// }}}
-				.then(cursor => new Promise((resolve, reject) => {
-					var iterateCursor = ()=> {
-						cursor.next()
-							.then(subDoc => {
-								if (subDoc) { // Fetched a document
-									var subDocValue = population.select ? _.get(subDoc, population.select) : subDoc;
-									if (o.cli.cache) valueCache[`${population.model}-${subDoc._id}`] = subDocValue; // Cache this value if enabled
-									o.log(2, 'Got population', subDoc._id, '=', subDocValue);
+			var docCount = 0;
+			return o.db.models[population.model]
+				.find({_id: {$in: Object.keys(population.matches).map(oid => new mongoosy.Types.ObjectId(oid))}})
+				.select(population.select)
+				.cursor()
+				.eachAsync(subDoc => {
+					var subDocValue = population.select ? _.get(subDoc, population.select) : subDoc;
+					if (o.cli.cache) valueCache[`${population.model}-${subDoc._id}`] = subDocValue; // Cache this value if enabled
+					o.log(2, 'Got population', `#${++docCount}`, subDoc._id, '=', subDocValue);
 
-									// Replace all endpoints with this value
-									population.matches[subDoc._id].forEach(path => _.set(doc, path, subDocValue));
-								} else { // Exhausted cursor
-									o.log(2, 'Aggregation exhausted');
-									resolve();
-								}
-							})
-							.then(()=> setTimeout(iterateCursor)) // Queue next iteration
-							.catch(reject)
-					};
-					iterateCursor();
-				}))
+					// Replace all endpoints with this value
+					population.matches[subDoc._id].forEach(path => _.set(doc, population.as, subDocValue));
+				})
+				.then(()=> {
+					o.log(2, 'Aggregation exhausted after finding', docCount, 'documents');
+				})
 		}))
 			.then(()=> o.output.doc(doc))
 	});

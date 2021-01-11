@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var monoxide = require('monoxide');
+var mongoosy = require('@momsfriendlydevco/mongoosy');
 
 module.exports = o => {
 	o.cli
@@ -22,11 +22,7 @@ module.exports = o => {
 
 			o.log(1, `Saving document ${collection} / # ${doc._id}`);
 			if (_.get(o, 'profile.mangle.collections.lowerCase')) collection = collection.toLowerCase();
-			return monoxide.save({
-				$collection: collection,
-				$id: doc._id,
-				...doc,
-			})
+			return mongoosy.models[collection].findOneAndUpdate({_id: doc._id}, doc, {new: true})
 				.then(res => o.output.doc(res))
 				.then(()=> o.log(2, `Saved document ${collection} / # ${doc._id}`))
 		}

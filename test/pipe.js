@@ -3,7 +3,7 @@ var exec = require('@momsfriendlydevco/exec');
 var mlog = require('mocha-logger');
 var setup = require('./setup');
 
-describe('Pipelines', function() {
+describe('Pipeline tests', function() {
 	this.timeout(60 * 1000); // 60s
 
 	before(setup.init);
@@ -101,8 +101,8 @@ describe('Pipelines', function() {
 			})
 	)
 
-	it('create copies of every user with each copy having the name "Fake <name>"', ()=>
-		exec(`o find users | o filter status=active | o set "name=Fake\${name}"`, {json: true})
+	it('create copies of each active user having the name "Fake <name>"', ()=>
+		exec('o find users | o filter status=active | o set "name=Fake${name}"', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);
@@ -115,7 +115,7 @@ describe('Pipelines', function() {
 	)
 
 	it('find all active users and also retrieve their company document', ()=>
-		exec(`o find users status=active | o populate company`, {json: true})
+		exec('o find users status=active | o populate company', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(3);

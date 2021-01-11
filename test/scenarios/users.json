@@ -1,8 +1,8 @@
 [
 	{
+		"$": "users.joe",
 		"_password": "ue",
-		"_ref": "users.joe",
-		"company": "company.acme",
+		"company": "$company.acme",
 		"favourite": {
 			"animal": "dog",
 			"color": "red"
@@ -12,9 +12,9 @@
 		"status": "active"
 	},
 	{
+		"$": "users.jane",
 		"_password": "oeaeoeae",
-		"_ref": "users.jane",
-		"company": "company.acme",
+		"company": "$company.acme",
 		"favourite": {
 			"animal": "cat",
 			"color": "yellow"
@@ -24,9 +24,9 @@
 		"status": "active"
 	},
 	{
+		"$": "users.bob",
 		"_password": "ao",
-		"_ref": "users.bob",
-		"company": "company.acme",
+		"company": "$company.acme",
 		"favourite": {
 			"animal": "dog",
 			"color": "yellow"
@@ -36,9 +36,9 @@
 		"status": "unverified"
 	},
 	{
+		"$": "users.dick",
 		"_password": "ao",
-		"_ref": "users.dick",
-		"company": "company.aperture",
+		"company": "$company.aperture",
 		"favourite": {
 			"animal": "squirrel",
 			"color": "blue"
@@ -48,9 +48,9 @@
 		"status": "deleted"
 	},
 	{
+		"$": "users.dick",
 		"_password": "ao",
-		"_ref": "users.dick",
-		"company": "company.aperture",
+		"company": "$company.aperture",
 		"favourite": {
 			"animal": "dog",
 			"color": "blue"
@@ -60,9 +60,9 @@
 		"status": "unverified"
 	},
 	{
+		"$": "users.dick",
 		"_password": "ao",
-		"_ref": "users.dick",
-		"company": "company.acme",
+		"company": "$company.acme",
 		"favourite": {
 			"animal": "dog",
 			"color": "red"
@@ -72,9 +72,9 @@
 		"status": "deleted"
 	},
 	{
+		"$": "users.dick",
 		"_password": "ao",
-		"_ref": "users.dick",
-		"company": "company.acme",
+		"company": "$company.acme",
 		"name": "Adam Admin",
 		"role": "admin",
 		"status": "active"

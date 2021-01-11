@@ -81,5 +81,6 @@ Promise.resolve()
 	.then(()=> process.exit(0))
 	.catch(e => {
 		o.log(0, e.toString())
+		o.log(3, 'TRACE:', e?.message?.toString() || 'Unavailable')
 		process.exit(1);
 	})

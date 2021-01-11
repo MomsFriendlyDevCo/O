@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var exec = require('@momsfriendlydevco/exec');
 var mlog = require('mocha-logger');
-var monoxide = require('monoxide');
+var mongoosy = require('@momsfriendlydevco/mongoosy');
 var setup = require('./setup');
 
 describe('`o save` CLI', function() {
@@ -10,7 +10,7 @@ describe('`o save` CLI', function() {
 	afterEach(setup.teardown);
 
 	it('find all deleted users and reset their status to active', ()=>
-		exec(`o find users status=deleted | o set status=active | o save`, {json: true})
+		exec(`o find users status=deleted | o set status=active | o save -vvv`, {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length(2);
@@ -18,7 +18,7 @@ describe('`o save` CLI', function() {
 
 				return res.map(r => r._id).sort();
 			})
-			.then(ids => monoxide.models.users.find({_id: {$in: ids}}).sort('_id'))
+			.then(ids => mongoosy.models.users.find({_id: {$in: ids}}).sort('_id'))
 			.then(docs => {
 				expect(docs).to.be.an('array');
 				expect(docs).to.have.length(2);

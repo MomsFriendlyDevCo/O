@@ -1,6 +1,6 @@
-var monoxide = require('monoxide');
+var mongoosy = require('@momsfriendlydevco/mongoosy');
 
-module.exports = monoxide
+module.exports = mongoosy
 	.schema('users', {
 		company: {type: 'pointer', ref: 'companies', index: true},
 		name: String,
