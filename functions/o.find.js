@@ -59,15 +59,15 @@ module.exports = o => {
 				*/
 				var setOID = item => {
 					if (_.isString(item)) {
-						return new mongoosy.Types.ObjectID(item);
+						return new mongoosy.Types.ObjectId(item);
 					} else if (_.isObject(item) && (item.$eq || item.$ne)) { // Simple object assignment
 						return {
-							[_(item).keys().first()]: new mongoosy.Types.ObjectID(_(item).values().first()),
+							[_(item).keys().first()]: new mongoosy.Types.ObjectId(_(item).values().first()),
 						};
 					} else if (_.isObject(item) && (item.$in || item.$nin)) { // Array assignment
 						var iterKey = _(item).keys().first();
 						return {
-							[iterKey]: item[iterKey].map(i => new mongoosy.Types.ObjectID(i))
+							[iterKey]: item[iterKey].map(i => new mongoosy.Types.ObjectId(i))
 						};
 					}
 				};

@@ -117,4 +117,25 @@ describe('`o find` CLI', function() {
 			})
 	)
 
+	it('find first user by ID', ()=> {
+		var firstUser;
+
+		return exec('o find users --select=_id --limit=1', {json: true})
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(1);
+				expect(res[0]).to.be.an('object');
+				expect(res[0]).to.have.property('_id');
+				firstUser = res[0];
+			})
+			.then(()=> exec(`o find users _id=${firstUser._id}`, {json: true}))
+			.then(res => {
+				expect(res).to.be.an('array');
+				expect(res).to.have.length(1);
+
+				expect(res[0]).to.be.an('object');
+				expect(res[0]).to.property('_id', firstUser._id);
+			})
+	})
+
 });
