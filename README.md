@@ -141,7 +141,7 @@ All of the examples here are usable within Bash or Zsh.
 
 
 # Find list all company names, with no users (i.e. orphaned companies)
-> o find companies 
+> o find companies  \|
 	o set userCount=`o count users company?=${_id}` \|
 	o find userCount<1 \|
 	o pluck name
