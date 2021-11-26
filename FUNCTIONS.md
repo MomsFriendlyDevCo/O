@@ -307,7 +307,7 @@ Options:
 
 
 o progress
--------
+----------
 
 ```
 Usage: o progress [--refresh <timestring> | --per <number>]
@@ -322,6 +322,28 @@ Options:
   --prefix <string>       What prefix to use when outputting (default is "Processed")
   --suffix <string>       What suffix to use when outputting (default is "documents")
   -h, --help              output usage information
+```
+
+
+o rename
+--------
+
+```
+
+Usage: o rename <from/to...>
+
+Change keys within a collection
+
+Options:
+  -V, --version  output the version number
+  -v, --verbose  Be verbose - use multiple to increase verbosity
+  -d, --discard  Remove all fields not explicitly recognised here
+  -h, --help     output usage information
+
+Notes:
+  * Fields of the form "FROM/TO" are renamed
+  * Fields prefixed with "!" or "-" are omitted
+  * Fields prefixed with "+" are kept (in discard mode only)
 ```
 
 
