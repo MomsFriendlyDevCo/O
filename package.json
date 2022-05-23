@@ -44,7 +44,6 @@
     "chalk": "^2.4.2",
     "commander": "^2.20.0",
     "commander-extras": "^1.0.1",
-    "description": "0.0.4",
     "globby": "^9.2.0",
     "gronk": "^1.0.0",
     "hanson": "^1.2.0",
