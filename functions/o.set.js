@@ -5,7 +5,7 @@ module.exports = o => {
 	o.cli
 		.description('Set fields within a collection of documents')
 		.usage('<field=value...>')
-		.option('--key <name>', 'Enter single ket-set mode, this is a workaround when accepting large JSON blobs on the command line')
+		.option('--key <name>', 'Enter single key-set mode, this is a workaround when accepting large JSON blobs on the command line')
 		.note('Fields can be specified in dotted notation format')
 		.note('Fields containing any ES6 tags will be evaluated with the current document context e.g. `bar=${foo}` copies the value of `foo` into `bar`')
 		.note('When --key is specified only one key can be set and all other command line parameters are assumed to be one JSON blob')
