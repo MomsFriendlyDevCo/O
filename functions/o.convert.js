@@ -13,6 +13,8 @@ module.exports = o => {
 		.option('--no-remove-key', 'Dont remove the source key from the rest of the body when converting from an object')
 		.note('Valid formats are: "collection", "object"')
 		.note('When using --to=object you can specify the numeric index offset using --key-from=INDEX')
+		.example('o convert --from=object --to=collection --key-as=id', 'Convert an object to a collection (array-of-objects), storing the object ID as `id`')
+		.example('o convert --c2o --key-from=id', 'Convert a collection to an object, picking the object ID from the field `id`')
 		.parse();
 
 	return Promise.resolve()
