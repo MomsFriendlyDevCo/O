@@ -12,8 +12,9 @@ All function help is accessible using `o <function> --help`.
 * **Filtering documents** - [o find](#o-find), [o filter](#o-filter), [o limit](#o-limit), [o skip](#o-skip), [o sort](#o-sort), [o uniq](#o-uniq)
 * **Pulling apart documents or drilling down** - [o for](#o-for), [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), [o select](#o-select), [o thru](#o-thru)
 * **Changing data** - [o map](#o-map), [o set](#o-set)
-* **Transforming data: Arrays to Objects** - [o columns](#o-columns), [o convert][#o-convert]
-* **Transforming data: Objects to Arrays** - [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), , [o convert][#o-convert]
+* **Transforming data: Arrays to Objects** - [o columns](#o-columns), [o convert](#o-convert)
+* **Transforming data: Objects to Arrays** - [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), , [o convert](#o-convert)
+* **Transforming to/from Strings**: [o squish](#o-squish), [o unsquish](#o-unsquish)
 * **Integration with external scripts** - [o map](#o-map), [o thru](#o-thru)
 * **Database meta information** - [o collections](#o-collections)
 * **O meta information** - [o profile](#o-profile), [o-stash](#o-stash)
@@ -455,6 +456,23 @@ Options:
 ```
 
 
+o squish
+--------
+
+```
+Usage: o squish [arguments]
+
+Transform JSON collections into one-item-per-line format
+
+Options:
+  -V, --version             output the version number
+  -v, --verbose             Be verbose - use multiple to increase verbosity
+  -d, --delimiter <string>  Specify the string delimeter if not newline
+                            (default: "\n")
+  -h, --help                display help for command
+```
+
+
 o sort
 ------
 
@@ -581,4 +599,19 @@ Notes:
   * Memory caching is extremely RAM intensive and large collections cause out-of-memory errors
   * If no fields are specified the top level element is used for comparison
   * Omit the field if the input is just an array of strings or numbers to compare those directly
+```
+
+
+o unsquish
+----------
+
+```
+Usage: o unsquish [arguments]
+
+Transform JSON `squish`d streams back into object collections
+
+Options:
+  -V, --version  output the version number
+  -v, --verbose  Be verbose - use multiple to increase verbosity
+  -h, --help     display help for command
 ```

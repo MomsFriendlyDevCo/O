@@ -12,6 +12,7 @@ var prettyGronk = require('gronk');
 var prettyJsome = require('jsome');
 var mongoosy = require('@momsfriendlydevco/mongoosy');
 var os = require('os');
+var readline = require('readline');
 var siftShorthand = require('sift-shorthand');
 var stream = require('stream');
 var temp = require('temp');
@@ -134,12 +135,16 @@ var o = {
 				ro.functions[func].path, // Path to script (not this parent script)
 				...args, // Rest of command line after the shorthand command name
 			]);
+			ro.cli = { // Replace base cli object with all commander flags + `args` meta key for other arguments
+				...ro.cli.opts(),
+				args: ro.cli.args,
+			};
 			if (ro.cli.verbose > ro.verbose) ro.verbose = ro.profile.verbose = ro.cli.verbose || 0; // Inherit verbosity from command line
 		};
 
 		var prom = Promise.resolve(require(ro.functions[func].path))
 			.then(module => {
-				if (!_.isFunction(module)) throw new Error(`O module "${ro.functions[func].path}" did not return a promise!`);
+				if (!_.isFunction(module)) throw new Error(`O module "${ro.functions[func].path}" did not return a promise! Got "${typeof module}"`);
 				return Promise.resolve(module.call(ro, ro));
 			})
 			.then(()=> ro.emit('close'))
@@ -209,6 +214,7 @@ var o = {
 				// Include all schema files {{{
 				.then(()=> glob(_.castArray(o.profile.schemas).map(p => o.utilities.resolvePath(p))))
 				.then(paths => o.input.include(paths))
+				//  }}}
 				// Include raw collections {{{
 				.then(()=> {
 					if (!o.profile.rawCollections) return;
@@ -279,7 +285,11 @@ var o = {
 				.then(readStream => o.emit('collectionStream', readStream).then(()=> readStream))
 				.then(readStream => new Promise((resolve, reject) => { // Start streaming from the input stream
 					var docIndex = 0;
-					var streamer = bfjc(readStream, {allowScalars: true, ...settings.bfj, pause: false}) // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
+					var streamer = bfjc(readStream, { // Slurp STDIN via BFJ in collection mode and relay each document into an event emitter, we also handling our own pausing
+						allowScalars: true,
+						...settings.bfj,
+						pause: false
+					})
 						.on('bfjc', doc => {
 							if (o.listenerCount('collection')) collection.push(doc);
 							var resume = streamer.pause(); // Pause streaming each time we accept a doc and wait for the promise to resolve
@@ -294,16 +304,87 @@ var o = {
 
 
 		/**
+		* Request a line-by-line array
+		* @emits doc Emitted as `(doc)` on each line slurped
+		* @returns {Promise} A promise which resolves when the collection stream has completed
+		*/
+		requestArrayStream: ()=> new Promise((resolve, reject) => {
+			var rlUi = readline.createInterface({
+				input: o.streams.in,
+				crlfDelay: Infinity,
+			})
+				.on('line', line => o.emit('doc', line))
+				.on('close', resolve)
+				.on('error', reject)
+		}),
+
+
+		/**
+		* Request a single array from the input stream made up of all contents
+		* Since this effectively reads the entire input into an array it is both blocking to the upstream and very memory intensive
+		* This is really just a wrapper for `requestRawSlurp` + JSON.parse()
+		* @returns {Promise<Array>} A promise which will resolve with the slurped input stream array
+		*/
+		requestArray: ()=> o.input.requestRawSlurp()
+			.then(raw => {
+				try {
+					return JSON.parse(raw);
+				} catch (e) {
+					throw new Error(`Parsing error with JSON array: ${e.toString()}`);
+				}
+			})
+			.then(items => Array.isArray(items)
+				? items
+				: Promise.reject('Parsed input object is not an array / collection')
+			),
+
+
+		/**
+		* Request a single object from the input stream
+		* This is really just a wrapper for `requestRawSlurp` + JSON.parse()
+		* @returns {Promise<Object>} A promise which will resolve with the slurped input stream object
+		*/
+		requestObject: options => o.input.requestRawSlurp()
+			.then(raw => {
+				try {
+					return JSON.parse(raw);
+				} catch (e) {
+					throw new Error(`Parsing error with JSON object: ${e.toString()}`);
+				}
+			})
+			.then(obj => typeof obj == 'object'
+				? obj
+				: Promise.reject('Parsed input object is not an array / collection')
+			),
+
+
+		/**
 		* Request a raw stream input slurped into a string
 		* @returns {Promise <string>} A promise which will resolve with the slurped input stream
 		*/
 		requestRawSlurp: ()=> new Promise((resolve, reject) => {
-			var buf = '';
+			var buf = [];
+			var bufStr = '';
 
 			o.streams.in
-				.on('data', data => buf += data.toString())
-				.on('close', ()=> resolve(buf))
-				.on('error', reject);
+				.setEncoding('utf8')
+				.on('data', data => {
+					// o.log('APPEND', data.length, 'END=', '[[[', data.substr(-20), ']]]')
+					buf.push(data.toString());
+					bufStr += data.toString();
+				})
+				.on('end', ()=> {
+					// o.log('FINISH', bufStr.length);
+					// o.log('FINISHOUT', '[[[', bufStr.toString(), ']]]');
+					// o.log('LAST', buf.join('').substr(-20));
+					// o.log('BUF DUMP', '[[[', buf.join(''), ']]]');
+					// o.log('BUF END');
+					resolve(buf.join(''));
+				})
+				// .on('close', ()=> resolve(buf.join('')))
+				.on('error', e => o.log('ERR', e))
+				.on('error', reject)
+				.resume()
 		}),
 
 
@@ -410,6 +491,16 @@ var o = {
 		*/
 		collection: docs =>
 			o.utilities.promiseAllSeries(docs.map(doc => ()=> o.output.doc(doc))),
+
+
+		/**
+		* Output a single object without the usual array / collection wrapping
+		* NOTE: This does not output any delimiters, use `o.output.doc()` for proper document handling
+		* @param {Object} obj The object to output
+		* @returns {Promise} A promise for when the output finishes
+		*/
+		object: obj =>
+			o.output.write(o.output.json(obj)),
 
 
 		/**
@@ -603,6 +694,20 @@ var o = {
 				: results
 			)
 		},
+
+
+		/**
+		* Return the input object sans all values that are undefined / nullish
+		* @param {Object} doc The input document to examine
+		* @returns {Object} A shallow copy of the input object minus all values that are nullish
+		*/
+		omitNullish: (doc) =>
+			Object.entries(doc)
+				.reduce((t, [key, val]) =>
+					val === null || val === undefined
+						? t
+						: Object.assign(t, {[key]: val})
+				, {}),
 	},
 };
 eventer.extend(o); // Glue eventer onto session object
