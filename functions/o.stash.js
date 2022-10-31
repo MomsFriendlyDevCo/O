@@ -3,7 +3,6 @@ var fs = require('fs');
 var fspath = require('path');
 var glob = require('globby');
 var namor = require('namor');
-var mkdirp = require('mkdirp');
 
 module.exports = o => {
 	o.cli
@@ -27,7 +26,7 @@ module.exports = o => {
 	if (o.cli.save) {
 		// Save mode {{{
 		return Promise.resolve()
-			.then(()=> mkdirp(o.profile.savePath))
+			.then(()=> fs.promises.mkdir(o.profile.savePath, {recursive: true}))
 			.then(()=>
 				_.isString(o.cli.save) ? o.cli.save
 				: o.cli.args.length ? o.cli.args[0]

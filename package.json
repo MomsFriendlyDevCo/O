@@ -27,7 +27,7 @@
   ],
   "license": "LGPL-3.0-only",
   "engines": {
-    "node": ">=10.10.0"
+    "node": ">=13.11.0, >=12.17.0"
   },
   "devDependencies": {
     "@momsfriendlydevco/exec": "^1.5.8",
@@ -51,7 +51,6 @@
     "jsome": "^2.5.0",
     "lodash": "^4.17.11",
     "minimatch": "^3.0.4",
-    "mkdirp": "^0.5.1",
     "namor": "^1.1.2",
     "plur": "^3.1.1",
     "sift": "^8.3.3",
