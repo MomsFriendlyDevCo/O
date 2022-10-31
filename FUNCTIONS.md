@@ -12,8 +12,8 @@ All function help is accessible using `o <function> --help`.
 * **Filtering documents** - [o find](#o-find), [o filter](#o-filter), [o limit](#o-limit), [o skip](#o-skip), [o sort](#o-sort), [o uniq](#o-uniq)
 * **Pulling apart documents or drilling down** - [o for](#o-for), [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), [o select](#o-select), [o thru](#o-thru)
 * **Changing data** - [o map](#o-map), [o set](#o-set)
-* **Transforming data: Arrays to Objects** - [o columns](#o-columns)
-* **Transforming data: Objects to Arrays** - [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck)
+* **Transforming data: Arrays to Objects** - [o columns](#o-columns), [o convert][#o-convert]
+* **Transforming data: Objects to Arrays** - [o ids](#o-ids), [o map](#o-map), [o pluck](#o-pluck), , [o convert][#o-convert]
 * **Integration with external scripts** - [o map](#o-map), [o thru](#o-thru)
 * **Database meta information** - [o collections](#o-collections)
 * **O meta information** - [o profile](#o-profile), [o-stash](#o-stash)
@@ -63,6 +63,42 @@ Options:
   -V, --version  output the version number
   -v, --verbose  Be verbose - use multiple to increase verbosity
   -h, --help     output usage information
+```
+
+o convert
+---------
+
+```
+Usage: o convert [arguments]
+
+Convert between various data types
+
+Options:
+  -V, --version      output the version number
+  -v, --verbose      Be verbose - use multiple to increase verbosity
+  --from <format>    Specify the input format to convert FROM
+  --to <format>      Specify the input format to convert TO
+  --c2o              Alias for `--from=collection --to=object`
+  --o2c              Alias for `--from=object --to=collection`
+  --key <name>       Specify the key name [to=object] (default: "id")
+  --key-as <name>    Specify what should happen with object keys
+                     [to=collection]
+  --key-from <name>  Specify where to take the object key from [to=object]
+  --no-remove-key    Dont remove the source key from the rest of the body when
+                     converting from an object
+  -h, --help         display help for command
+
+Notes:
+  * Valid formats are: "collection", "object"
+  * When using --to=object you can specify the numeric index offset using --key-from=INDEX
+
+Examples:
+
+  # Convert an object to a collection (array-of-objects), storing the object ID as `id`
+  o convert --from=object --to=collection --key-as=id
+
+  # Convert a collection to an object, picking the object ID from the field `id`
+  o convert --c2o --key-from=id
 ```
 
 

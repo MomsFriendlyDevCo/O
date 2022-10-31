@@ -43,12 +43,12 @@
 			"animal": "squirrel",
 			"color": "blue"
 		},
-		"name": "Dick deleted",
+		"name": "Dick deleteed",
 		"role": "user",
 		"status": "deleted"
 	},
 	{
-		"$": "users.vallery",
+		"$": "users.dick",
 		"_password": "ao",
 		"company": "$company.aperture",
 		"favourite": {
@@ -72,7 +72,7 @@
 		"status": "deleted"
 	},
 	{
-		"$": "users.adam",
+		"$": "users.dick",
 		"_password": "ao",
 		"company": "$company.acme",
 		"name": "Adam Admin",
