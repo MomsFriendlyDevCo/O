@@ -30,7 +30,7 @@
     "node": ">=13.11.0, >=12.17.0"
   },
   "devDependencies": {
-    "@momsfriendlydevco/exec": "^1.5.8",
+    "@momsfriendlydevco/exec": "^1.5.9",
     "chai": "^4.3.6",
     "mocha": "^10.1.0",
     "mocha-logger": "^1.0.8"
