@@ -214,7 +214,7 @@ var o = {
 				// Include all schema files {{{
 				.then(()=> _.castArray(o.profile.schemas))
 				.then(schemaPaths => {
-					o.log(3, 'Including schema paths:', schemaPaths);
+					o.log(3, 'Importing schema paths:', schemaPaths);
 					return schemaPaths;
 				})
 				.then(schemaPaths => glob(schemaPaths.map(p => o.utilities.resolvePath(p))))
