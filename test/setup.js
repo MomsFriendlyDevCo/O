@@ -7,7 +7,7 @@ var mlog = require('mocha-logger');
 var o = require('..');
 
 
-var mongoURI = 'mongodb://localhost/o-cli-test';
+var mongoURI = 'mongodb://localhost/o-test';
 
 // Setting this to FALSE will disable the database teardown (i.e. not erase the Schema + DB when done)
 // This is useful for debugging but only with single scripts as each test script will expect a fresh database
@@ -56,6 +56,7 @@ var setup = module.exports = {
 		exec.defaults.bufferStdout = true;
 		exec.defaults.alias = {o: fspath.resolve(__dirname, '..', 'o.js')};
 
+		// Export env setup to sub-exec shells
 		exec.defaults.env = {
 			O_PROFILE: ''
 				+ `uri=${mongoURI},`
@@ -73,9 +74,11 @@ var setup = module.exports = {
 
 	// initSchemas {{{
 	initSchemas() {
-		require('./models/users');
-		require('./models/companies');
-		return mongoosy.compileModels();
+		return o.input.require([
+			`${__dirname}/models/users`,
+			`${__dirname}/models/companies`,
+		])
+			.then(()=> mongoosy.compileModels())
 	},
 	// }}}
 

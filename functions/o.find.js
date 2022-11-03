@@ -121,37 +121,35 @@ module.exports = o => {
 				o.log(1, 'Dry run mode, not actually running the query');
 				return undefined;
 			} else {
-				o.aggregation.cursor = o.db.models[o.aggregation.model].aggregate(o.aggregation.query).cursor().exec();
+				o.aggregation.cursor = o.db.models[o.aggregation.model]
+					.aggregate(o.aggregation.query)
+					.cursor()
+
 				o.log(2, 'Receieved aggregation cursor');
 			}
 		})
 		// }}}
 		// Iterate over cursor until exhausted {{{
 		.then(()=> o.cli.one || o.cli.count ? o.output.start() : o.output.startCollection())
-		.then(()=> new Promise((resolve, reject) => {
-			if (o.cli.dryRun) return resolve(); // Don't actually run anything
-			var iterateCursor = ()=> {
-				o.aggregation.cursor.next()
-					.then(doc => {
-						if (doc) { // Fetched a document
-							if (o.cli.count) {
-								return o.output.doc(doc.count);
-							} else if (o.cli.pluck) {
-								return o.output.doc(_.get(doc, o.cli.pluck));
-							} else {
-								doc._collection = o.aggregation.model;
-								return o.output.doc(doc);
-							}
-						} else { // Exhausted cursor
-							o.log(2, 'Aggregation exhausted');
-							resolve();
-						}
-					})
-					.then(()=> setTimeout(iterateCursor, o.cli.delay)) // Queue next iteration
-					.catch(reject)
-			};
+		.then(()=> {
+			if (o.cli.dryRun) return; // Don't actually run anything
+			return o.aggregation.cursor.eachAsync(doc => {
+				if (doc) { // Fetched a document
+					if (o.cli.count) {
+						return o.output.doc(doc.count);
+					} else if (o.cli.pluck) {
+						return o.output.doc(_.get(doc, o.cli.pluck));
+					} else {
+						doc._collection = o.aggregation.model;
+						return o.output.doc(doc);
+					}
+				} else { // Exhausted cursor
+					o.log(2, 'Aggregation exhausted');
+					resolve();
+				}
+			}, {parallel: 1})
 			iterateCursor();
-		}))
+		})
 		.then(()=> o.cli.one || o.cli.count ? o.output.end() : o.output.endCollection())
 		// }}}
 };

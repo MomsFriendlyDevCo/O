@@ -212,8 +212,13 @@ var o = {
 				.then(()=> o.log(2, 'Connected'))
 				// }}}
 				// Include all schema files {{{
-				.then(()=> glob(_.castArray(o.profile.schemas).map(p => o.utilities.resolvePath(p))))
-				.then(paths => o.input.include(paths))
+				.then(()=> _.castArray(o.profile.schemas))
+				.then(schemaPaths => {
+					o.log(3, 'Including schema paths:', schemaPaths);
+					return schemaPaths;
+				})
+				.then(schemaPaths => glob(schemaPaths.map(p => o.utilities.resolvePath(p))))
+				.then(paths => o.input.require(paths))
 				//  }}}
 				// Include raw collections {{{
 				.then(()=> {
@@ -393,9 +398,9 @@ var o = {
 		* If a file returns a function it is executed, promises are resolved before continuing in series
 		* @returns {Promise} A promise when all files are included
 		*/
-		include: paths =>
+		require: paths =>
 			o.utilities.promiseAllSeries(paths.map(path => ()=> {
-				o.log(3, `Including schema file "${path}"`);
+				o.log(3, `Importing schema file "${path}"`);
 
 				var result = require(path);
 				return Promise.resolve(_.isFunction(result) ? result() : result);

@@ -1,6 +1,6 @@
 var mongoosy = require('@momsfriendlydevco/mongoosy');
 
-module.exports = mongoosy
+module.exports = ()=> mongoosy
 	.schema('users', {
 		company: {type: 'pointer', ref: 'companies', index: true},
 		name: String,
