@@ -17,15 +17,15 @@ describe('`o find` CLI', function() {
 			})
 	);
 
-	it('find all users', ()=>
-		exec('o find users -vvv', {json: true})
+	it('find all users', ()=> {
+		exec('o find users', {json: true})
 			.then(res => {
 				expect(res).to.be.an('array');
 				expect(res).to.have.length.above(1);
 
 				res.forEach(user => setup.validateUser(user));
 			})
-	)
+	})
 
 	it('find only the first two users', ()=>
 		exec(['o', 'find', 'users', '--limit=2'], {json: true})
